@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #E8E5E0;
+  --foreground: #0a0a0a;
+  --accent: #56a5f0;
+
+  /* CustomCursor — aligné sur les surfaces du portfolio */
+  --cursor-dot: #18181b;
+  --cursor-ring: rgba(24, 24, 27, 0.45);
+  --cursor-ring-hover: rgba(24, 24, 27, 0.65);
+  --cursor-hover-fill: rgba(24, 24, 27, 0.08);
+}
+
+/* Fond sombre / zone « noir papier » : point et anneau clairs (zinc cassé) */
+html[data-cursor-surface="dark"] {
+  --cursor-dot: #f4f4f5;
+  --cursor-ring: rgba(244, 244, 245, 0.45);
+  --cursor-ring-hover: rgba(244, 244, 245, 0.7);
+  --cursor-hover-fill: rgba(244, 244, 245, 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-accent: var(--accent);
+  --font-sans: var(--font-mona), sans-serif;
+  --font-serif: var(--font-instrument), serif;
+  --font-anton: var(--font-anton), sans-serif;
+  --font-bebas: var(--font-bebas), sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  overflow-x: hidden;
+}
+
+/* -- Lenis Recommended CSS -- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.bebas {
+  font-family: var(--font-bebas), sans-serif;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Grain texture overlay */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  filter: contrast(150%) brightness(100%);
+}
+
+/* Menu link animation helper */
+.menu-link-char-overlay {
+  transform: translateY(-100%);
+}
+
+/* Section indicator mono style */
+.section-indicator {
+  font-family: var(--font-mona), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+}
+
+
+
+
+
+.spotlight-intro-header, .spotlight-outro-header {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  text-align: center;
+  will-change: transform;
+}
+
+.spotlight-intro-header {
+  z-index: 1;
+}
+
+.spotlight-outro-header {
+  z-index: 10;
 }

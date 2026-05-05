@@ -1,65 +1,127 @@
-import Image from "next/image";
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef, useState } from "react";
+
+import SplashCursor from "@/components/cursor/SplashCursor";
+import Header from "@/components/navigation/Header";
+import Preloader from "@/components/preloader/Preloader";
+
+import AboutSection from "@/components/sections/AboutSection";
+import BrandSection from "@/components/sections/BrandSection";
+import AnimatedTitle from "@/components/AnimatedTitle";
+import FaqSection from "@/components/sections/FaqSection";
+import FooterSection from "@/components/sections/FooterSection";
+import HeroSection from "@/components/sections/HeroSection";
+import BrandHeader from "@/components/sections/BrandHeader";
+import ServicesSection from "@/components/sections/ServicesSection";
+import WorksSection from "@/components/sections/WorksSection";
+
+import { I18nProvider } from "@/lib/i18n";
+import SectionWrapper from "@/components/SectionWrapper";
+import ManifestoSection from "@/components/sections/ManifestoSection";
+import AboutHeader from "@/components/sections/AboutHeader";
+import WorkHeader from "@/components/sections/WorkHeader";
+import FaqHeader from "@/components/sections/FaqHeader";
 
 export default function Home() {
+  const mainRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [cursorReady, setCursorReady] = useState(false);
+
+  // Header + Navigation: caché pendant le preloader, révélé au preloaderComplete
+  useEffect(() => {
+    const handlePreloaderComplete = () => {
+      // Mount cursor only after preloader exits (avoids competing for GPU)
+      setCursorReady(true);
+    };
+
+    window.addEventListener("preloaderComplete", handlePreloaderComplete);
+    return () => {
+      window.removeEventListener("preloaderComplete", handlePreloaderComplete);
+    };
+  }, []);
+
+  useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Expand title lines left-to-right
+    gsap.fromTo(
+      ".title-rule",
+      { scaleX: 0 },
+      {
+        scaleX: 1,
+        duration: 1.4,
+        ease: "power1.out",
+        scrollTrigger: {
+          trigger: "#about",
+          start: "top 80%",
+          end: "bottom 40%",
+          scrub: true,
+        },
+      },
+    );
+
+    // === TRANSITION 1: Warm Grey → Black (at pre-brand) ===
+    /*
+    gsap.to(mainRef.current, {
+      backgroundColor: "#050505",
+      color: "#ffffff",
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#pre-brand",
+        start: "top 60%", // Fade in slowly as text appears
+        end: "bottom 30%",
+        scrub: true,
+      },
+    });
+    */
+
+    // === TRANSITION 2: Black → Warm Grey (at footer) ===
+    /*
+    gsap.to(mainRef.current, {
+      backgroundColor: "#E8E5E0",
+      color: "#0a0a0a",
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#footer",
+        start: "top 80%",
+        end: "top 30%",
+        scrub: true,
+      },
+    });
+    */
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <I18nProvider>
+      <Preloader />
+      {cursorReady && <SplashCursor />}
+      <Header />
+
+      <main
+        ref={mainRef}
+        className="relative min-h-screen bg-[#E8E5E0] text-[#0a0a0a]"
+      >
+        <div className="grain-overlay" />
+
+        <div className="relative w-full">
+          <HeroSection />
+          <BrandHeader />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <BrandSection />
+        <AboutHeader />
+        <ManifestoSection />
+        <ServicesSection />
+        <FaqHeader />
+        <FaqSection />
+        <WorkHeader />
+        <WorksSection />
+        <FooterSection />
       </main>
-    </div>
+    </I18nProvider>
   );
 }
