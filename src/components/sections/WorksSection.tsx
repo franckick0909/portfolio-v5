@@ -151,7 +151,7 @@ export default function WorksSection() {
   }, { scope: container });
 
   return (
-    <section ref={container} id="works" className="relative w-full pt-16 pb-32 md:pt-32 md:pb-48 bg-[#050505] text-[#F5F5F5] z-20 overflow-hidden">
+    <section ref={container} id="works" className="relative w-full pt-16 pb-32 md:pt-32 md:pb-48 bg-[#050505] text-[#F5F5F5] z-40 overflow-hidden">
 
       {/* Asymmetrical Grid */}
       <div className="w-full px-6 md:px-16 max-w-[1800px] mx-auto">
@@ -218,7 +218,7 @@ export default function WorksSection() {
                 <div className="mt-8 flex flex-col gap-3">
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 rounded-full border border-[#F5F5F5] bg-transparent group-hover:bg-[#F5F5F5] transition-colors duration-300 ease-out shrink-0" />
-                    <h3 className="font-anton text-3xl md:text-5xl uppercase tracking-tight group-hover:tracking-normal transition-all duration-500">
+                    <h3 className="font-bebas text-3xl md:text-5xl uppercase tracking-tight group-hover:tracking-normal transition-all duration-500">
                       {project.name}
                     </h3>
                   </div>

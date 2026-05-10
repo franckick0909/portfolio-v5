@@ -6,16 +6,7 @@ import { useGSAP } from "@gsap/react";
 
 /**
  * AnimatedTitle — Rolling Text effect
- *
- * Each character has TWO copies: an original and a clone (positioned above/below).
- * The rolling animation moves both simultaneously by yPercent ±100 with N repeats,
- * creating a seamless infinite-scroll illusion.
- *
- * The magic: instead of playing the repeating timeline directly, we SCRUB its
- * progress with power4.inOut easing. This creates perfectly smooth acceleration
- * at the start and deceleration at the end — no discrete ticks needed.
- *
- * 4 random letters per word, word-by-word sequencing, motion blur at peak velocity.
+ * ULTRA-STRICT CLIPPING for tight layouts.
  */
 
 interface AnimatedTitleProps {
@@ -51,29 +42,18 @@ export default function AnimatedTitle({
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Entry targets: .anim-char (original text only)
     const chars = container.current?.querySelectorAll(".anim-char");
     if (!chars || chars.length === 0) return;
 
     const yStart = from === "top" ? -150 : 150;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ROLLING TEXT ENGINE
-    // ─────────────────────────────────────────────────────────────────────────
     const startSlotMachine = () => {
-      // Enable per-char clip window
-      container.current?.querySelectorAll(".anim-char-clip").forEach((el) => {
-        (el as HTMLElement).style.overflow = "hidden";
-      });
-
-      // ── Config ──────────────────────────────────────────────────────────
-      const REPEAT_COUNT = 6;        // full rotations per letter
-      const ROLL_DURATION = 3.0;     // total scrub time in seconds
-      const BLUR_MAX = 1.5;          // peak motion blur (px)
+      const REPEAT_COUNT = 6;
+      const ROLL_DURATION = 3.0;
+      const BLUR_MAX = 1.0; 
       const PAUSE_BETWEEN_WORDS = 1.5;
       const PAUSE_BETWEEN_CYCLES = 6;
 
-      // ── Build word ranges ───────────────────────────────────────────────
       const charArray = Array.from(chars) as HTMLElement[];
       const wordRanges: number[][] = [];
       let idx = 0;
@@ -83,7 +63,6 @@ export default function AnimatedTitle({
         wordRanges.push(range);
       }
 
-      // ── Animate a group of letters with the rolling technique ───────────
       const animateGroup = (indices: number[], onDone?: () => void) => {
         if (indices.length === 0) {
           onDone?.();
@@ -93,66 +72,50 @@ export default function AnimatedTitle({
         const masterTl = gsap.timeline({ paused: true });
 
         indices.forEach((charIdx, i) => {
-          const charEl = charArray[charIdx]; // .anim-char (original)
-          const clipEl = charEl.parentElement!; // .anim-char-clip
+          const charEl = charArray[charIdx];
+          const clipEl = charEl.parentElement!;
           const cloneEl = clipEl.querySelector(".roll-clone") as HTMLElement;
           if (!cloneEl) return;
 
-          // Alternate direction per local index
           const goesUp = i % 2 === 0;
 
-          // Position clone above (or below) the original
           gsap.set(cloneEl, {
             opacity: 1,
             yPercent: goesUp ? -100 : 100,
           });
 
-          // Reset original to clean state
           gsap.set(charEl, { yPercent: 0, y: 0 });
 
-          // Create the repeating roll:
-          // • Both pieces move together by ±100%
-          // • Original exits one side → clone enters from the other
-          // • Since they look identical, it appears as a continuous reel
           const roll = gsap.to([charEl, cloneEl], {
             repeat: REPEAT_COUNT,
             ease: "none",
             yPercent: goesUp ? "+=100" : "-=100",
-            duration: 1, // arbitrary — scrubbed by progress below
+            duration: 1,
           });
 
           masterTl.add(roll, 0);
         });
 
-        // ── Scrub progress with ease = smooth accel/decel ─────────────────
-        // This is the key technique: instead of playing the repeating timeline,
-        // we animate its .progress from 0→1 with power4.inOut.
-        // At the start and end, progress moves slowly → letters move slowly.
-        // In the middle, progress moves fast → letters spin fast.
         gsap.to(masterTl, {
           progress: 1,
           duration: ROLL_DURATION,
           ease: "power4.inOut",
           onUpdate: function () {
-            // Motion blur proportional to velocity (sine approximation)
             const p = this.progress();
-            const velocity = Math.sin(p * Math.PI); // 0→1→0 bell curve
+            const velocity = Math.sin(p * Math.PI);
             const blur = velocity * BLUR_MAX;
 
             indices.forEach((charIdx) => {
               const clipEl = charArray[charIdx].parentElement!;
               (clipEl as HTMLElement).style.filter =
-                blur > 0.1 ? `blur(${blur.toFixed(1)}px)` : "none";
+                blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : "none";
             });
           },
           onComplete: () => {
-            // Clean up: hide clones, reset transforms, clear blur
             indices.forEach((charIdx) => {
               const charEl = charArray[charIdx];
               const clipEl = charEl.parentElement!;
-              const cloneEl = clipEl.querySelector(
-                ".roll-clone",
-              ) as HTMLElement;
+              const cloneEl = clipEl.querySelector(".roll-clone") as HTMLElement;
 
               gsap.set(charEl, { yPercent: 0, y: 0 });
               if (cloneEl) gsap.set(cloneEl, { opacity: 0, yPercent: -100 });
@@ -163,30 +126,22 @@ export default function AnimatedTitle({
         });
       };
 
-      // ── Cycle runner ────────────────────────────────────────────────────
       const runCycle = () => {
         const group0 = pickRandom(wordRanges[0] ?? [], 4);
         const group1 = pickRandom(wordRanges[1] ?? [], 4);
 
-        // Word 1 rolls
         animateGroup(group0, () => {
-          // Pause → Word 2 rolls
           gsap.delayedCall(PAUSE_BETWEEN_WORDS, () => {
             animateGroup(group1, () => {
-              // Pause → restart cycle with new random letters
               gsap.delayedCall(PAUSE_BETWEEN_CYCLES, runCycle);
             });
           });
         });
       };
 
-      // Breathing room after entry animation
       gsap.delayedCall(1.5, runCycle);
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ENTRY ANIMATIONS
-    // ─────────────────────────────────────────────────────────────────────────
     if (trigger === "scroll") {
       gsap.fromTo(
         chars,
@@ -224,8 +179,7 @@ export default function AnimatedTitle({
       };
 
       window.addEventListener("preloaderComplete", playAnimation);
-      return () =>
-        window.removeEventListener("preloaderComplete", playAnimation);
+      return () => window.removeEventListener("preloaderComplete", playAnimation);
     } else {
       gsap.fromTo(
         chars,
@@ -244,17 +198,19 @@ export default function AnimatedTitle({
     }
   }, { scope: container, dependencies: [text, trigger, delay] });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // RENDER: Each char has original + absolute-positioned clone for the reel
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div
       ref={container}
-      className={`pb-[0.2em] mb-[-0.2em] pt-[0.15em] mt-[-0.15em] ${className}`}
-      style={{ overflow: "hidden" }}
+      className={`relative ${className}`}
+      style={{ 
+        overflow: "hidden",
+        isolation: "isolate",
+        marginBottom: "-1rem",
+        overflowY: "hidden",
+      }}
     >
       <Tag
-        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase`}
+        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase leading-none`}
       >
         {words.map((word, wIdx) => (
           <span
@@ -266,25 +222,32 @@ export default function AnimatedTitle({
                 key={`${wIdx}-${cIdx}`}
                 className="anim-char-clip"
                 style={{
-                  display: "inline-block",
-                  verticalAlign: "bottom",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   position: "relative",
-                  overflow: "visible", // → hidden by startSlotMachine()
+                  overflow: "hidden",
+                  lineHeight: 0.9, // Retire l'espace de la baseline sous les lettres
+                  clipPath: "inset(0 0 0 0)",
+                  WebkitClipPath: "inset(0 0 0 0)",
                 }}
               >
-                {/* Original text — entry animation target */}
-                <span className="anim-char inline-block origin-bottom">
+                {/* Original character */}
+                <span className="anim-char inline-block will-change-transform">
                   {char}
                 </span>
-                {/* Clone — hidden until rolling starts */}
+                {/* Absolute clone character */}
                 <span
-                  className="roll-clone"
+                  className="roll-clone pointer-events-none"
                   aria-hidden="true"
                   style={{
                     position: "absolute",
                     left: 0,
                     top: 0,
                     opacity: 0,
+                    width: "100%",
+                    height: "100%",
+                    willChange: "transform",
                   }}
                 >
                   {char}

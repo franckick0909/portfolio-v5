@@ -24,7 +24,7 @@ export default function FooterSection() {
   return (
     <footer
       id="footer"
-      className="relative w-full px-8 md:px-12 pt-32 pb-8"
+      className="relative w-full px-8 md:px-12 pt-32 pb-8 z-40 bg-foreground text-background"
     >
       {/* Contact info — right aligned, large */}
       <div className="flex flex-col items-end mb-16">
@@ -85,8 +85,8 @@ export default function FooterSection() {
 
       {/* Giant name */}
       <div className="w-full overflow-hidden mb-8">
-        <h2 className="font-anton text-[15vw] md:text-[13vw] uppercase leading-[0.85] tracking-tighter">
-          FRANCK CHAPELON
+        <h2 className="font-bebas text-[15vw] md:text-[13vw] uppercase leading-[0.85] tracking-tighter">
+          {t.footerTitle}
         </h2>
       </div>
 

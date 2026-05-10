@@ -16,7 +16,7 @@ export default function WorksFooter({ projects }: { projects: Project[] }) {
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
 
   return (
-    <section className="w-full bg-black text-white pt-24 pb-12 px-4 md:px-8 flex flex-col relative z-10 min-h-[80vh]">
+    <section className="w-full bg-black text-white pt-24 pb-12 px-4 md:px-8 flex flex-col relative z-40 min-h-[80vh]">
       {/* Top Section */}
       <div className="w-full relative flex justify-center items-center h-[30vh] mb-16">
         {/* Fixed Image on the left */}

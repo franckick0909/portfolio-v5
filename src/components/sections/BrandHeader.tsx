@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitType from "split-type";
 import { useGSAP } from "@gsap/react";
+import ArrowButton from "@/components/ui/ArrowButton";
 
 export default function BrandHeader() {
   const { t } = useI18n();
@@ -148,40 +149,33 @@ export default function BrandHeader() {
     <section 
       id="pre-brand" 
       ref={sectionRef}
-      className="relative w-full min-h-[calc(100vh-5vh)] flex flex-col items-center justify-center px-6 md:px-12 z-10 bg-foreground overflow-hidden"
+      className="relative w-full min-h-[calc(100vh-5vh)] flex flex-col items-center justify-center px-6 md:px-12 z-40 bg-transparent overflow-hidden"
       style={{ perspective: "1000px" }} // Nécessaire pour le rotateX 3D
     >
       {/* Micro-typographies (Tags éditoriaux) */}
-      <div className="absolute top-8 left-8 md:top-12 md:left-12 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-sans text-background/40">
+      <div className="absolute top-8 left-8 md:top-12 md:left-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80">
         [ 01 ] EXPERTISE
       </div>
-      <div className="absolute top-8 right-8 md:top-12 md:right-12 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-sans text-background/40 text-right">
+      <div className="absolute top-8 right-8 md:top-12 md:right-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80 text-right">
         VISION & APPROACH
       </div>
 
-      <div className="max-w-full w-full text-balance pointer-events-none mt-12 md:mt-0">
+      <div className="absolute left-8 md:left-12 w-2/3 md:w-1/2 pointer-events-none mt-8 md:mt-0">
         <h4 
           ref={textRef}
-          className="text-[clamp(2rem,3vw,5rem)] font-serif tracking-tight leading-tight font-medium italic mix-blend-difference opacity-90 text-background"
+          className="text-[clamp(2rem,3vw,5rem)] font-serif tracking-tight leading-tight font-medium mix-blend-difference opacity-90 text-background text-start"
         >
           {t.heroExperience}
         </h4>
       </div>
 
-      {/* Flèche directionnelle animée */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 arrow-container">
-        <span className="text-[9px] uppercase tracking-[0.4em] font-sans text-background/50">Scroll</span>
-        <svg 
-          width="12" 
-          height="40" 
-          viewBox="0 0 14 40" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          className="arrow-svg"
-        >
-          <path d="M7 0L7 38M7 38L1 32M7 38L13 32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-background/50"/>
-        </svg>
-      </div>
+      {/* Étiquette Projet Récent (légende de l'image portal) */}
+      <a href="#works" className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex flex-col items-end gap-3 group cursor-pointer pointer-events-auto">
+        <span className="text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80 group-hover:text-background transition-colors duration-300">
+          PROJETS RÉCENTS
+        </span>
+        <ArrowButton variant="light" className="opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+      </a>
     </section>
   );
 }

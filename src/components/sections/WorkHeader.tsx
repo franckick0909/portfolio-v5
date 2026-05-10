@@ -32,22 +32,22 @@ export default function WorkHeader() {
   }, { scope: container });
 
   return (
-    <section ref={container} className="relative w-full pt-32 pb-16 md:pt-48 md:pb-24 bg-[#E8E5E0] text-[#0a0a0a] z-20">
+    <section ref={container} className="relative w-full pt-32 pb-16 md:pt-48 md:pb-24 bg-[#E8E5E0] text-[#0a0a0a] z-50">
       <div className="w-full flex flex-col-reverse md:flex-row justify-between md:items-end px-6 md:px-16 gap-12 max-w-[1800px] mx-auto">
         <p className="max-w-sm text-sm uppercase tracking-widest opacity-60 font-sans">
           Sélection de projets récents démontrant notre expertise en design interactif et développement sur-mesure.
         </p>
         <div className="flex flex-col w-full md:w-auto md:items-end">
-          <AnimatedTitle
-            text="FEATURED"
-            sizeClass="text-[clamp(4rem,10vw,12rem)]"
-            className="font-anton leading-none tracking-tight uppercase md:text-right"
+          <AnimatedTitle 
+            text="TRAVAUX" 
+            sizeClass="text-[clamp(4rem,12vw,14rem)]" 
+            className="font-bebas leading-none tracking-tight uppercase md:text-right"
             trigger="scroll"
           />
-          <AnimatedTitle
-            text="WORKS"
-            sizeClass="text-[clamp(4rem,10vw,12rem)]"
-            className="font-anton leading-none tracking-tight uppercase md:text-right"
+          <AnimatedTitle 
+            text="RÉCENTS" 
+            sizeClass="text-[clamp(4rem,12vw,14rem)]" 
+            className="font-bebas leading-none tracking-tight uppercase md:text-right"
             trigger="scroll"
           />
           {/* Animated Line */}

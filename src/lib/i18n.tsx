@@ -14,7 +14,7 @@ const dictionary = {
     heroLocation: "BASÉ EN FRANCE",
     heroAvailable: "DISPONIBLE POUR COLLABORATION",
     heroEmail: "contact@franckchapelon.com",
-    heroExperience: "J'ai l'expérience du web et de UX/UI, pour créer des expériences web mémorables pour des marques de TOUTES TAILLES.",
+    heroExperience: "J'ai l'expérience du web et de UX/UI pour créer des expériences web mémorables pour des marques de TOUTES TAILLES.",
     // Manifesto
     manifestoText: "LE DESIGN N'EST PAS QU'UNE DÉCORATION, C'EST UN OUTIL D'INFLUENCE ET DE CROISSANCE.",
     manifestoLines: [

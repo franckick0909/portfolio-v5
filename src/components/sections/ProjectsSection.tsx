@@ -50,7 +50,7 @@ export default function ProjectsSection() {
     <section
       id="projects"
       ref={container}
-      className="h-screen w-full relative overflow-hidden bg-black flex items-center justify-center cursor-ew-resize"
+      className="h-screen w-full relative overflow-hidden bg-black flex items-center justify-center cursor-ew-resize z-40"
     >
       {/* Background Architectural Grid Lines */}
       <div className="absolute inset-x-0 top-[15vh] h-px bg-zinc-900 z-0"></div>

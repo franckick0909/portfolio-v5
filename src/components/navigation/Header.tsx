@@ -12,7 +12,7 @@ const links = [
   { label: "Projets", href: "/#works" },
   { label: "Services", href: "/#services" },
   { label: "À Propos", href: "/#about" },
-  { label: "Contact", href: "/#footer" },
+  { label: "démarrer un projet", href: "/#footer" },
 ];
 
 type HeaderProps = {
@@ -40,7 +40,7 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
     if (isProjectPage) return; // No preloader animation on project page
 
     const handlePreloaderComplete = () => {
-      gsap.to(".header-anim", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.2 });
+      gsap.to(".header-anim", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.5 });
     };
 
     window.addEventListener("preloaderComplete", handlePreloaderComplete);
@@ -86,11 +86,11 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
   return (
     <div ref={containerRef}>
       {/* HEADER BAR */}
-      <div className={`fixed left-0 w-full z-[200] flex justify-between items-center pointer-events-auto transition-all duration-500 top-3 px-4 md:px-6 text-white mix-blend-difference`}>
+      <div className={`fixed left-0 w-full z-[200] flex justify-between items-center pointer-events-auto transition-all duration-500 top-3 px-4 md:px-6 lg:px-12 text-white mix-blend-difference`}>
         
         {/* LEFT: LOGO */}
         <div className={`flex-1 flex items-center ${isProjectPage ? '' : 'header-anim opacity-0 -translate-y-10'}`}>
-          <Link href="/" onClick={() => setIsOpen(false)} className="group flex font-anton font-normal text-xl md:text-2xl  leading-[0.9] tracking-wider">
+          <Link href="/" onClick={() => setIsOpen(false)} className="group flex font-serif font-medium text-xl md:text-3xl  leading-none tracking-wider">
             <div className="flex items-end">
               <span>F</span>
               <span className="overflow-hidden whitespace-nowrap max-w-0 opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-[700ms] ease-[cubic-bezier(0.76,0,0.24,1)]">RANCK</span>
@@ -107,7 +107,7 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
           <div className="hidden md:flex justify-center">
             {/* To visually appear as Black background / White text on a white page under mix-blend-difference, 
                 the DOM colors must be bg-white text-black */}
-            <Link href="/#works" className="group relative overflow-hidden flex items-center bg-white text-black px-3 py-[3px] gap-2 text-xs md:text-sm font-medium cursor-pointer transition-opacity duration-500 w-[200px]">
+            <Link href="/#works" className="group relative overflow-hidden flex items-center bg-white text-black px-3 py-[3px] gap-2 text-xs md:text-sm font-light cursor-pointer transition-opacity duration-500 w-[200px]">
               <span className="relative z-10 transition-colors duration-500 group-hover:duration-300 group-hover:text-white flex items-center gap-2">
                  <span className="opacity-50 group-hover:opacity-100">✕</span>
                  <span>{projectName}®</span>
@@ -119,7 +119,7 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
 
         {/* RIGHT: CONTROLS (Lang + Menu Toggle) */}
         <div className={`flex-1 flex items-center justify-end gap-4 md:gap-6 ${isProjectPage ? '' : 'header-anim opacity-0 -translate-y-10'}`}>
-          <button onClick={toggleLocale} className="font-sans text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">
+          <button onClick={toggleLocale} className="font-sans text-[11px] md:text-xs font-light uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">
             {locale === "fr" ? "EN" : "FR"}
           </button>
 
@@ -136,14 +136,14 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
                   if (isOpen) { setIsOpen(false); tl.current?.reverse(); }
                   else { setIsOpen(true); tl.current?.play(); }
                 }} 
-                className="font-sans font-normal flex items-center justify-end uppercase tracking-widest text-[11px] md:text-xs font-bold"
+                className="font-sans font-light flex items-center justify-end uppercase tracking-widest text-[11px] md:text-xs"
              >
                 {/* Roll Text Container */}
                 <div className="relative h-[1.2em] w-16 md:w-20 overflow-hidden flex items-center justify-end">
-                   <div className="menu-text-menu absolute right-0 transition-colors duration-300">
+                   <div className="menu-text-menu absolute right-0 transition-colors duration-500">
                       Menu
                    </div>
-                   <div className="menu-text-close absolute right-0 transition-colors duration-300 opacity-0 translate-y-full">
+                   <div className="menu-text-close absolute right-0 transition-colors duration-500 opacity-0 translate-y-full">
                       Fermer
                    </div>
                 </div>
@@ -151,7 +151,7 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
 
              {/* Staggered Links List (Sans background) */}
              <div 
-                className={`absolute top-full right-0 pt-2 pb-2 flex flex-col items-end gap-0 ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                className={`absolute top-full right-0 pt-1 pb-1 flex flex-col items-end ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
              >
                 {links.map((link, i) => (
                    <div key={i} className="menu-link-item opacity-0 translate-y-4">
@@ -162,12 +162,15 @@ export default function Header({ projectName, shortYear, projectIndex }: HeaderP
                           setIsOpen(false);
                           tl.current?.reverse();
                         }} 
-                        className="group relative inline-flex items-center px-2 py-0.5 font-sans text-[10px] md:text-xs font-medium uppercase tracking-widest overflow-hidden whitespace-nowrap mix-blend-difference"
+                        className="group relative inline-flex items-center px-1 py-0.5 font-sans text-[13px] md:text-[15px] font-normal capitalize tracking-normal overflow-hidden whitespace-nowrap leading-none"
                      >
-                        <span className={`relative z-10 transition-colors duration-500 group-hover:duration-300 ${textColor} ${hoverTextColor}`}>
+                        {/* Tape Background effect: Fast on enter (200ms), Slow on leave (700ms) */}
+                        <span className={`absolute inset-0 ${bgSlideColor} origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-1000 group-hover:duration-200 ease-[cubic-bezier(0.76,0,0.24,1)] z-0`}></span>
+                        
+                        {/* We use mix-blend-difference on the text so it automatically inverts against the white tape */}
+                        <span className={`relative z-10 block mix-blend-difference ${textColor}`}>
                            {link.label}
                         </span>
-                        <span className={`absolute inset-0 ${bgSlideColor} origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 group-hover:duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] z-0`}></span>
                      </Link>
                    </div>
                 ))}

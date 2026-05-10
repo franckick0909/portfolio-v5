@@ -5,13 +5,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 
-import SplashCursor from "@/components/cursor/SplashCursor";
+import FluidCursor from "@/components/cursor/FluidCursor";
 import Header from "@/components/navigation/Header";
 import Preloader from "@/components/preloader/Preloader";
 
 import AboutSection from "@/components/sections/AboutSection";
 import BrandSection from "@/components/sections/BrandSection";
-import AnimatedTitle from "@/components/AnimatedTitle";
 import FaqSection from "@/components/sections/FaqSection";
 import FooterSection from "@/components/sections/FooterSection";
 import HeroSection from "@/components/sections/HeroSection";
@@ -20,7 +19,6 @@ import ServicesSection from "@/components/sections/ServicesSection";
 import WorksSection from "@/components/sections/WorksSection";
 
 import { I18nProvider } from "@/lib/i18n";
-import SectionWrapper from "@/components/SectionWrapper";
 import ManifestoSection from "@/components/sections/ManifestoSection";
 import AboutHeader from "@/components/sections/AboutHeader";
 import WorkHeader from "@/components/sections/WorkHeader";
@@ -46,59 +44,12 @@ export default function Home() {
 
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
-
-    // Expand title lines left-to-right
-    gsap.fromTo(
-      ".title-rule",
-      { scaleX: 0 },
-      {
-        scaleX: 1,
-        duration: 1.4,
-        ease: "power1.out",
-        scrollTrigger: {
-          trigger: "#about",
-          start: "top 80%",
-          end: "bottom 40%",
-          scrub: true,
-        },
-      },
-    );
-
-    // === TRANSITION 1: Warm Grey → Black (at pre-brand) ===
-    /*
-    gsap.to(mainRef.current, {
-      backgroundColor: "#050505",
-      color: "#ffffff",
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#pre-brand",
-        start: "top 60%", // Fade in slowly as text appears
-        end: "bottom 30%",
-        scrub: true,
-      },
-    });
-    */
-
-    // === TRANSITION 2: Black → Warm Grey (at footer) ===
-    /*
-    gsap.to(mainRef.current, {
-      backgroundColor: "#E8E5E0",
-      color: "#0a0a0a",
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#footer",
-        start: "top 80%",
-        end: "top 30%",
-        scrub: true,
-      },
-    });
-    */
   });
 
   return (
     <I18nProvider>
       <Preloader />
-      {cursorReady && <SplashCursor />}
+      {cursorReady && <FluidCursor />}
       <Header />
 
       <main
@@ -111,7 +62,6 @@ export default function Home() {
           <HeroSection />
           <BrandHeader />
         </div>
-
         <BrandSection />
         <AboutHeader />
         <ManifestoSection />

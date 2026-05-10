@@ -266,16 +266,16 @@ export default function BrandSection() {
     <section
       id="brand"
       ref={containerRef}
-      className="relative w-full h-full min-h-[calc(100vh-5vh)] bg-foreground overflow-hidden flex flex-col justify-between px-8 md:px-16 py-12 text-background z-20 cursor-crosshair"
+      className="relative w-full h-full min-h-[calc(100vh-5vh)] bg-foreground overflow-hidden flex flex-col justify-between px-8 md:px-16 py-12 text-background z-40 cursor-crosshair"
     >
       <div className="flex justify-between items-start w-full mix-blend-difference z-30 select-none">
-        <div className="flex flex-col font-anton tracking-tighter leading-[0.85]">
+        <div className="flex flex-col font-bebas tracking-tighter leading-[0.85]">
           <span className="text-[clamp(1.5rem,4vw,3.75rem)] mt-2 md:mt-4">2/5</span>
         </div>
-        <div className="flex gap-2 md:gap-4 font-light text-[clamp(0.625rem,2.3vw,2.25rem)] mt-3 md:mt-4 uppercase tracking-[0.2em] pt-0.5 md:pt-2 text-background/70">
+        <div className="flex gap-2 md:gap-4 font-light text-[clamp(0.625rem,2.3vw,2.25rem)] mt-3 md:mt-4 uppercase tracking-[0.2em] pt-0.5 md:pt-2 text-background/80">
           <span>{t.manifestoTag1}</span>
         </div>
-        <div className="flex gap-2 md:gap-4 font-light text-[clamp(0.625rem,2.3vw,2.25rem)] mt-3 md:mt-4 uppercase tracking-[0.2em] pt-0.5 md:pt-2 text-background/70">
+        <div className="flex gap-2 md:gap-4 font-light text-[clamp(0.625rem,2.3vw,2.25rem)] mt-3 md:mt-4 uppercase tracking-[0.2em] pt-0.5 md:pt-2 text-background/80">
           <span>{t.manifestoTag2}</span>
         </div>
       </div>
@@ -289,7 +289,7 @@ export default function BrandSection() {
           {textLines.map((line, lineIdx) => (
             <h2 
               key={lineIdx}
-              className="font-anton text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight whitespace-nowrap pointer-events-auto"
+              className="font-bebas text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight whitespace-nowrap pointer-events-auto"
             >
               {line.split("").map((char, charIdx) => (
                 <span
@@ -308,7 +308,7 @@ export default function BrandSection() {
       {/* Récipient physique pour les clones, purement visuel. Hérite des tailles de police parentes pour les clones */}
       <div 
         ref={physicsContainerRef} 
-        className="absolute inset-0 pointer-events-auto z-25 font-anton text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight" 
+        className="absolute inset-0 pointer-events-auto z-25 font-bebas text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight" 
       />
 
       <div className="w-full h-px bg-background/80 mix-blend-difference z-30 relative" />

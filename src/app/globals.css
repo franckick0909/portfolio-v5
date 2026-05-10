@@ -2,7 +2,7 @@
 
 :root {
   --background: #E8E5E0;
-  --foreground: #0a0a0a;
+  --foreground: #030304;
   --accent: #56a5f0;
 
   /* CustomCursor — aligné sur les surfaces du portfolio */
@@ -28,6 +28,7 @@ html[data-cursor-surface="dark"] {
   --font-serif: var(--font-instrument), serif;
   --font-anton: var(--font-anton), sans-serif;
   --font-bebas: var(--font-bebas), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
 }
 
 body {

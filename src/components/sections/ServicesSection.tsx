@@ -244,15 +244,15 @@ export default function ServicesSection() {
     <section
       ref={sectionRef}
       id="services"
-      className="w-full bg-background text-foreground relative z-20"
+      className="w-full bg-background text-foreground relative z-40"
     >
       {/* Animated Title (Aligned to right) */}
       <div className="relative w-full flex justify-end py-12 md:py-24 px-6 md:px-16 z-30">
         <div className="flex flex-col items-end w-full max-w-max">
           <AnimatedTitle
-            text="SERVICES"
-            sizeClass="text-[clamp(4rem,14vw,16rem)]"
-            className="font-anton text-foreground leading-none tracking-tight uppercase text-right"
+            text="NOS SERVICES"
+            sizeClass="text-[clamp(4rem,12vw,14rem)]"
+            className="font-bebas text-foreground leading-none tracking-tight uppercase text-right"
             trigger="scroll"
           />
           <div className="services-title-rule w-full h-[2px] md:h-1 opacity-80 origin-right bg-foreground" />

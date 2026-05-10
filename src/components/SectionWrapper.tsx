@@ -24,7 +24,7 @@ export default function SectionWrapper({
         max-w-[1920px] 
         mx-auto
         overflow-hidden
-        ${noPadding ? "" : "px-2 md:px-4 lg:px-8"} 
+        ${noPadding ? "" : "px-2 md:px-4 lg:px-6"} 
         ${className}
       `}
     >

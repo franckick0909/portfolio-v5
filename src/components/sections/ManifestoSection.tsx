@@ -84,11 +84,11 @@ export default function ManifestoSection() {
       const bioSplits = bioElements.map(
         (el) => new SplitType(el, { types: "words" }),
       );
-      const finalSplit = new SplitType(finalElement, { types: "words" });
+      const finalSplit = finalElement ? new SplitType(finalElement, { types: "words" }) : null;
 
-      bioSplits.forEach((split) => gsap.set(split.words, { opacity: 0 }));
-      gsap.set(finalSplit.words, { opacity: 0 });
-      gsap.set(finalElement, { opacity: 1 });
+      bioSplits.forEach((split) => { if (split.words) gsap.set(split.words, { opacity: 0 }); });
+      if (finalSplit?.words) gsap.set(finalSplit.words, { opacity: 0 });
+      if (finalElement) gsap.set(finalElement, { opacity: 1 });
 
       const scatterDirections = [
         { x: 1.3, y: 0.7 },
@@ -123,9 +123,9 @@ export default function ManifestoSection() {
         y: 0,
         z: -1000,
         scale: 0,
-        rotX: 0,
-        rotY: 0,
-        rotZ: 0,
+        rotationX: 0,
+        rotationY: 0,
+        rotation: 0,
       }));
 
       const endPositions = scatterDirections.map((dir) => ({
@@ -133,23 +133,25 @@ export default function ManifestoSection() {
         y: dir.y * scattterMultiplier * screenHeight,
         z: 2000,
         scale: 1,
-        rotX: (Math.random() - 0.5) * 120, // max 60deg rotation
-        rotY: (Math.random() - 0.5) * 120,
-        rotZ: (Math.random() - 0.5) * 60,
+        rotationX: (Math.random() - 0.5) * 120, // max 60deg rotation
+        rotationY: (Math.random() - 0.5) * 120,
+        rotation: (Math.random() - 0.5) * 60,
       }));
 
       images.forEach((img, index) => {
         gsap.set(img, startPositions[index]);
       });
 
-      gsap.set(coverImg, {
-        transformPerspective: 2000,
-        z: -1000,
-        scale: 0,
-        opacity: 0,
-        x: 0,
-        y: 0,
-      });
+      if (coverImg) {
+        gsap.set(coverImg, {
+          transformPerspective: 2000,
+          z: -1000,
+          scale: 0,
+          opacity: 0,
+          x: 0,
+          y: 0,
+        });
+      }
 
       ScrollTrigger.create({
         trigger: ".spotlight",
@@ -175,9 +177,9 @@ export default function ManifestoSection() {
             const scaleValue = gsap.utils.interpolate(start.scale, end.scale, imageProgress * scaleMultiplier);
             const xValue = gsap.utils.interpolate(start.x, end.x, imageProgress);
             const yValue = gsap.utils.interpolate(start.y, end.y, imageProgress);
-            const rotXValue = gsap.utils.interpolate(start.rotX, end.rotX, imageProgress);
-            const rotYValue = gsap.utils.interpolate(start.rotY, end.rotY, imageProgress);
-            const rotZValue = gsap.utils.interpolate(start.rotZ, end.rotZ, imageProgress);
+            const rotXValue = gsap.utils.interpolate(start.rotationX, end.rotationX, imageProgress);
+            const rotYValue = gsap.utils.interpolate(start.rotationY, end.rotationY, imageProgress);
+            const rotZValue = gsap.utils.interpolate(start.rotation, end.rotation, imageProgress);
 
             gsap.set(img, {
               z: zValue,
@@ -196,13 +198,15 @@ export default function ManifestoSection() {
           const coverScaleValue = Math.min(1, coverProgress * 2);
           const coverOpacity = gsap.utils.clamp(0, 1, coverProgress * 2);
 
-          gsap.set(coverImg, {
-            z: coverZValue,
-            scale: coverScaleValue,
-            opacity: coverOpacity,
-            x: 0,
-            y: 0,
-          });
+          if (coverImg) {
+            gsap.set(coverImg, {
+              z: coverZValue,
+              scale: coverScaleValue,
+              opacity: coverOpacity,
+              x: 0,
+              y: 0,
+            });
+          }
 
           // Helper pour animer l'apparition et disparition des mots
           const animateWords = (
@@ -417,7 +421,7 @@ export default function ManifestoSection() {
 
       return () => {
         bioSplits.forEach((split) => split.revert());
-        finalSplit.revert();
+        if (finalSplit) finalSplit.revert();
         introSplits.forEach((split) => split.revert());
         if (outroSplit) outroSplit.revert();
       };
@@ -428,10 +432,10 @@ export default function ManifestoSection() {
   return (
     <section
       ref={container}
-      className="relative w-full overflow-hidden bg-background"
+      className="relative w-full overflow-hidden bg-background z-40"
     >
       {/* Intro Section */}
-      <section className="intro relative w-full min-h-screen flex flex-col justify-between bg-background text-foreground z-10 px-6 py-24 md:px-16 md:py-32 gap-32 text-balance">
+      <section className="intro relative w-full min-h-screen flex flex-col justify-between bg-background text-foreground z-40 px-6 py-24 md:px-16 md:py-32 gap-32 text-balance">
         {/* Ligne du haut : Texte à gauche, Globe à droite */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start w-full relative z-10 gap-8 md:gap-0">
           <h2 className="intro-text text-[clamp(2rem,3vw,5rem)] font-serif tracking-tight leading-[1.1] font-medium text-left max-w-4xl mt-12 md:mt-0 relative z-20 mix-blend-difference">

@@ -57,7 +57,7 @@ export default function FaqSection() {
     <section 
       id="faq" 
       ref={container}
-      className="relative w-full pt-8 pb-24 md:pt-16 md:pb-32 bg-background text-foreground z-20"
+      className="relative w-full pt-8 pb-24 md:pt-16 md:pb-32 bg-background text-foreground z-40"
     >
       <div className="w-full flex flex-col items-center px-6 md:px-16">
         

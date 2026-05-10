@@ -36,13 +36,13 @@ export default function AboutHeader() {
     <section 
       id="about" 
       ref={container} 
-      className="flex flex-col z-10 py-24 md:py-32 bg-foreground text-background"
+      className="relative flex flex-col z-40 py-24 md:py-32 bg-foreground text-background"
     >
       <div className="w-full max-w-max px-6 md:px-16">
         <AnimatedTitle
           text="A PROPOS"
           sizeClass="text-[clamp(4rem,14vw,16rem)]"
-          className="font-anton text-background leading-none tracking-tight uppercase"
+          className="font-bebas text-background leading-none tracking-tight uppercase z-40"
           trigger="scroll"
         />
         <div

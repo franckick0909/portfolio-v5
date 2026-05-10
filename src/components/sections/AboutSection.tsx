@@ -113,7 +113,7 @@ export default function AboutSection() {
   return (
     <section
       ref={container}
-      className="relative w-full min-h-screen px-6 md:px-16 py-32 bg-background overflow-hidden text-foreground"
+      className="relative w-full min-h-screen px-6 md:px-16 py-32 bg-background overflow-hidden text-foreground z-40"
     >
 
       {/* DISPOSITION AÉRÉE ET ÉCLATÉE EN GRID */}
@@ -190,7 +190,7 @@ export default function AboutSection() {
           Tout de suite, je réponds généralement dans la journée, alors n'hésitez pas à me contacter en cliquant sur le bouton ci-dessous.
         </p>
         
-        <h2 className="split-text-lines text-[clamp(2.5rem,8vw,8rem)] font-anton uppercase leading-[0.9] tracking-tight mb-16 text-center">
+        <h2 className="split-text-lines text-[clamp(2.5rem,8vw,8rem)] font-bebas uppercase leading-[0.9] tracking-tight mb-16 text-center">
           Créons quelque chose ensemble
         </h2>
         

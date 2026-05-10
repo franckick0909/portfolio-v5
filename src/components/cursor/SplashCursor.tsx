@@ -430,7 +430,16 @@ export default function SplashCursor({
           #endif
 
           float a = max(c.r, max(c.g, c.b));
-          gl_FragColor = vec4(c, a);
+
+          // ─── CAPPEN BLOB THRESHOLD ───
+          // Converts the smoky fluid gradient into a solid, hard-edged shape.
+          // Smoothstep provides anti-aliasing on the edges.
+          // As the fluid dissipates (a decreases), the threshold causes the shape to shrink smoothly.
+          float alpha = smoothstep(0.02, 0.06, a);
+          
+          // Output solid white (which will be inverted by mix-blend-difference)
+          // Multiply RGB by alpha to fix premultiplied alpha blending with the DOM
+          gl_FragColor = vec4(vec3(1.0) * alpha, alpha);
       }
     `;
 
@@ -1316,7 +1325,7 @@ export default function SplashCursor({
   ]);
 
   return (
-    <div className="fixed top-0 left-0 z-50 pointer-events-none w-full h-full mix-blend-difference opacity-100">
+    <div className="splash-cursor-container fixed top-0 left-0 z-[9998] pointer-events-none w-full h-full mix-blend-difference opacity-100 transition-opacity duration-500">
       <canvas ref={canvasRef} id="fluid" className="w-screen h-screen block"></canvas>
     </div>
   );

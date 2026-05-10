@@ -32,7 +32,7 @@ export default function FaqHeader() {
   }, { scope: container });
 
   return (
-    <section ref={container} className="relative w-full pt-32 pb-8 md:pt-48 md:pb-16 bg-foreground text-background z-20">
+    <section ref={container} className="relative w-full pt-32 pb-8 md:pt-48 md:pb-16 bg-foreground text-background z-40">
       <div className="w-full flex flex-col md:flex-row md:items-end justify-between px-6 md:px-16 gap-8 max-w-[1800px] mx-auto">
         
         <div className="flex flex-col w-full md:w-auto">
@@ -40,9 +40,9 @@ export default function FaqHeader() {
             Des questions ?
           </span>
           <AnimatedTitle
-            text="F.A.Q."
-            sizeClass="text-[clamp(4rem,10vw,12rem)]"
-            className="font-anton leading-none tracking-tight uppercase"
+            text="F.A.Q"
+            sizeClass="text-[clamp(4rem,14vw,16rem)]"
+            className="font-bebas leading-none tracking-tight uppercase"
             trigger="scroll"
           />
           {/* Animated Line */}
