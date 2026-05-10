@@ -33,7 +33,7 @@ function ProjectScreen({ project, index, total }: { project: typeof projects[0],
         url={project.img}
         transparent
         opacity={1}
-        scale={[3, 4.5, 1]}
+        scale={[3, 4.5]}
         position={[0, 0, 0]}
       />
       <Text
@@ -130,22 +130,10 @@ export default function ProjectsCanvas() {
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 45 }}
-      gl={(canvas) => {
-        const renderer = new THREE.WebGLRenderer({
-          canvas,
-          antialias: true,
-          alpha: true,
-          powerPreference: "default",
-          failIfMajorPerformanceCaveat: false,
-          // @ts-ignore - Force WebGL1 context
-          context: canvas.getContext('webgl', {
-            antialias: true,
-            alpha: true,
-            powerPreference: "default",
-            failIfMajorPerformanceCaveat: false
-          }),
-        });
-        return renderer;
+      gl={{
+        antialias: true,
+        alpha: true,
+        powerPreference: "default",
       }}
     >
       <React.Suspense fallback={null}>
