@@ -46,6 +46,7 @@ const dictionary = {
     footerContact: "CONTACTEZ-MOI",
     footerRights: "Tous droits réservés. Franck Chapelon",
     footerLegal: "Reproduction ou distribution sans permission interdite.",
+    footerTitle: "FRANCK CHAPELON",
     // Nav
     langToggle: "EN",
   },
@@ -85,6 +86,7 @@ const dictionary = {
     footerContact: "GET IN TOUCH",
     footerRights: "All Rights Reserved. Franck Chapelon",
     footerLegal: "Any reproduction or distribution without permission is prohibited.",
+    footerTitle: "FRANCK CHAPELON",
     langToggle: "FR",
   },
 } as const;
