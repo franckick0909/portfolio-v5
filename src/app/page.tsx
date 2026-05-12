@@ -28,9 +28,12 @@ export default function Home() {
   const mainRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [cursorReady, setCursorReady] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
 
   // Header + Navigation: caché pendant le preloader, révélé au preloaderComplete
   useEffect(() => {
+    setIsDesktop(window.innerWidth > 1024);
+    
     const handlePreloaderComplete = () => {
       // Mount cursor only after preloader exits (avoids competing for GPU)
       setCursorReady(true);
@@ -49,7 +52,7 @@ export default function Home() {
   return (
     <I18nProvider>
       <Preloader />
-      {cursorReady && <FluidCursor />}
+      {cursorReady && isDesktop && <FluidCursor />}
       <Header />
 
       <main

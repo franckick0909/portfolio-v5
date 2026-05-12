@@ -12,7 +12,7 @@ const links = [
   { label: "Projets", href: "/#works" },
   { label: "Services", href: "/#services" },
   { label: "À Propos", href: "/#about" },
-  { label: "démarrer un projet", href: "/#footer" },
+  { label: "Commencer", href: "/#footer" },
 ];
 
 type HeaderProps = {

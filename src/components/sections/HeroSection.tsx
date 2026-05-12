@@ -22,7 +22,8 @@ export default function HeroSection() {
   const { t } = useI18n();
   const container = useRef<HTMLDivElement>(null);
   const titleWrapper = useRef<HTMLDivElement>(null);
-  const slotRef = useRef<HTMLDivElement>(null);
+  const slotDesktopRef = useRef<HTMLDivElement>(null);
+  const slotMobileRef = useRef<HTMLDivElement>(null);
 
   // Refs pour l'effet portal "Cappen"
   const portalRef = useRef<HTMLDivElement>(null);
@@ -61,35 +62,62 @@ export default function HeroSection() {
       let diffY = 0;
       let startClip = "";
 
-      if (vw < 768) {
-        startClip = `inset(${vh / 2 - 20}px ${vw / 2 - 40}px ${vh / 2 - 20}px ${vw / 2 - 40}px round 4px)`;
-      } else if (slotRef.current && container.current) {
-        // Obtenir la position EXACTE du trou dans la section
-        const rect = slotRef.current.getBoundingClientRect();
-        const heroRect = container.current.getBoundingClientRect();
+      let initialScale = 0.25;
 
-        // Calculer la position relative à la section (qui a la taille de l'écran)
-        const relativeTop = rect.top - heroRect.top;
-        const relativeLeft = rect.left - heroRect.left;
-        const relativeBottom = relativeTop + rect.height;
-        const relativeRight = relativeLeft + rect.width;
+      // Le conteneur Spline est forcé à 200vw sur mobile pour garder un ratio paysage
+      // Le secret pour empêcher le Spline d'être trop gros sur mobile :
+      // On force le canvas à avoir un ratio PAYSAGE (w = 1.5 * h), même sur un écran portrait !
+      // Ainsi, la caméra Spline ne zoome jamais.
+      const canvasW = vw < 1024 ? vh * 1.5 : vw;
+      const canvasH = vh;
 
-        startClip = `inset(${relativeTop}px ${vw - relativeRight}px ${vh - relativeBottom}px ${relativeLeft}px round 4px)`;
+      const activeSlot =
+        vw < 1024 ? slotMobileRef.current : slotDesktopRef.current;
 
-        // Calcul du décalage pour centrer le Spline dans le trou
-        const slotCenterX = relativeLeft + rect.width / 2;
-        const slotCenterY = relativeTop + rect.height / 2;
+      if (activeSlot) {
+        // Obtenir la position EXACTE du trou par rapport au viewport
+        const rect = activeSlot.getBoundingClientRect();
+
+        // Le portalRef est "fixed inset-0", donc son repère est le viewport.
+        const insetTop = rect.top;
+        const insetRight = vw - rect.right;
+        const insetBottom = vh - rect.bottom;
+        const insetLeft = rect.left;
+
+        startClip = `inset(${insetTop}px ${insetRight}px ${insetBottom}px ${insetLeft}px round 4px)`;
+
+        // Calcul du centre du slot par rapport au viewport
+        const slotCenterX = rect.left + rect.width / 2;
+        const slotCenterY = rect.top + rect.height / 2;
+
+        // Décalage pour centrer la scène Spline
         diffX = slotCenterX - vw / 2;
         diffY = slotCenterY - vh / 2;
+
+        // Calcul dynamique du scale initial par rapport à la taille FORCÉE du canvas
+        const scaleX = rect.width / canvasW;
+        const scaleY = rect.height / canvasH;
+
+        // Multiplicateur ajusté pour laisser une belle marge noire autour du Chips
+        const multiplier = vw < 1024 ? 1.05 : 1.2;
+        initialScale = Math.max(scaleX, scaleY) * multiplier;
       } else {
-        startClip = `inset(45vh 41vw 45vh 41vw round 4px)`; // fallback
+        // Fallback
+        const boxH = vw < 768 ? 60 : 100;
+        const boxW = vw < 768 ? 100 : 180;
+        startClip = `inset(${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px ${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px round 4px)`;
+        initialScale = (boxW / canvasW) * 1.5;
       }
 
-      // Initialiser le clip-path en pixels exacts
+      // Initialiser le clip-path et la position/scale du Spline avec xPercent/yPercent pour centrage absolu
       gsap.set(portalRef.current, { clipPath: startClip });
-
-      // Positionner et scaler la scène Spline pour qu'elle soit pile au centre du trou
-      gsap.set(portalImageRef.current, { x: diffX, y: diffY });
+      gsap.set(portalImageRef.current, {
+        xPercent: -50,
+        yPercent: -50,
+        x: diffX,
+        y: diffY,
+        scale: initialScale,
+      });
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
@@ -132,8 +160,6 @@ export default function HeroSection() {
         0,
       );
 
-
-
       // 4. Faire disparaître le texte du Hero et le décaler
       scrollTl.to(
         titleWrapper.current,
@@ -169,13 +195,13 @@ export default function HeroSection() {
       {/* Sorti de la section pour ne pas être impacté par overflow-hidden ou le pin spacer */}
       <div
         ref={portalRef}
-        className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground"
+        className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground ml-2 md:ml-3"
         style={{ zIndex: 30 }}
       >
-        {/* Spline 3D Scene */}
+        {/* Spline 3D Scene - Ratio Paysage forcé sur mobile (150vh) pour reculer la caméra */}
         <div
           ref={portalImageRef}
-          className="w-full h-full scale-[0.25] pointer-events-auto"
+          className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
         >
           <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
         </div>
@@ -184,20 +210,20 @@ export default function HeroSection() {
       <section
         id="hero"
         ref={container}
-        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-transparent text-foreground"
+        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-transparent text-foreground overflow-hidden md:overflow-visible"
       >
-        <SectionWrapper className="relative z-30 w-full h-full flex flex-col items-center justify-start pt-48 md:justify-center md:pt-0">
+        <SectionWrapper className="relative z-30 w-full h-full flex flex-col items-center justify-center">
           <div
             ref={titleWrapper}
             className="relative z-10 pointer-events-none flex flex-col items-center w-full md:mb-10"
           >
             {/* ══════════════ DESKTOP TITLE (LOCKED) ══════════════ */}
-            <div className="hidden md:flex flex-col items-center justify-center w-full relative max-w-[90vw] leading-[0.9]">
+            <div className="hidden lg:flex flex-col items-center justify-center w-full relative max-w-[90vw] leading-none">
               {/* Line 1: CONCEVOIR - ALIGN START */}
               <div className="w-full flex justify-start ">
                 <AnimatedTitle
                   text="CONCEVOIR"
-                  sizeClass="text-[12vw]"
+                  sizeClass="text-[14vw]"
                   trigger="event"
                   delay={0}
                   className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
@@ -206,29 +232,29 @@ export default function HeroSection() {
               </div>
 
               {/* Tag under CONCEVOIR */}
-              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-start ml-2">
+              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-start pt-0">
                 <span className="text-[10px] md:text-xs font-sans tracking-[0.2em] uppercase font-medium opacity-60 text-foreground">
                   RATIO 1,618 — v3.0
                 </span>
               </div>
 
               {/* Line 2: LE [GAP] FUTUR - ALIGN CENTER */}
-              <div className="w-full flex justify-center items-center gap-10">
+              <div className="w-full flex justify-center items-center gap-2">
                 <AnimatedTitle
                   text="LE"
-                  sizeClass="text-[12vw]"
+                  sizeClass="text-[13vw]"
                   trigger="event"
                   delay={0.15}
                   className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
                   staggerFrom="start"
                 />
                 <div
-                  ref={slotRef}
-                  className="w-[18vw] h-[10vw] flex-shrink-0"
+                  ref={slotDesktopRef}
+                  className="w-[20vw] h-[10vw] flex-shrink-0"
                 />
                 <AnimatedTitle
                   text="FUTUR"
-                  sizeClass="text-[12vw]"
+                  sizeClass="text-[13vw]"
                   trigger="event"
                   delay={0.25}
                   className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
@@ -237,7 +263,7 @@ export default function HeroSection() {
               </div>
 
               {/* Subtitle above DÈS AUJOURD'HUI */}
-              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-end mr-2">
+              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-end pt-0">
                 <span className="text-[10px] md:text-xs font-serif italic tracking-[0.15em] uppercase opacity-80 text-foreground">
                   Architecture of Balance
                 </span>
@@ -247,7 +273,7 @@ export default function HeroSection() {
               <div className="w-full flex justify-end">
                 <AnimatedTitle
                   text="DÈS AUJOURD'HUI"
-                  sizeClass="text-[12vw]"
+                  sizeClass="text-[13vw]"
                   trigger="event"
                   delay={0.4}
                   className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
@@ -256,53 +282,59 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* ══════════════ MOBILE / TABLET TITLE ══════════════ */}
-            <div className="md:hidden flex flex-col items-start w-full px-4 sm:px-8">
-              <AnimatedTitle
-                text="CONCEVOIR"
-                sizeClass="text-[16vw] sm:text-[14vw]"
-                trigger="event"
-                delay={0}
-                className="font-bebas text-foreground leading-none font-black tracking-tighter"
-              />
-              {/* Mobile tag */}
-              <span className="olha-tag opacity-0 text-[8px] sm:text-[10px] font-sans tracking-[0.2em] uppercase font-medium opacity-70 mt-0.5 ml-1">
-                RATIO 1,618 — v3.0
-              </span>
-              <div className="flex items-center justify-end gap-3 sm:gap-4 w-full">
+            {/* ══════════════ MOBILE / TABLET TITLE (SLOT BELOW) ══════════════ */}
+            <div className="lg:hidden flex flex-col items-center w-full px-2 sm:px-4">
+              <div className="flex flex-col items-center w-full leading-none gap-4 md:gap-1 text-center">
+                {/* Ratio Tag Top */}
+                <div className="olha-tag opacity-0 w-full flex justify-start">
+                  <span className="text-[9px] sm:text-[10px] font-sans tracking-[0.2em] uppercase font-medium opacity-60">
+                    RATIO 1,618 — v3.0
+                  </span>
+                </div>
+
                 <AnimatedTitle
-                  text="LE"
-                  sizeClass="text-[16vw] sm:text-[14vw]"
+                  text="CONCEVOIR"
+                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
+                  trigger="event"
+                  delay={0}
+                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference self-start"
+                />
+
+                <AnimatedTitle
+                  text="LE FUTUR DÈS"
+                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
                   trigger="event"
                   delay={0.1}
-                  className="font-bebas text-foreground leading-none font-black tracking-tighter"
+                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
                 />
-                <div className="w-10 sm:w-14 h-px bg-foreground/30" />
+
                 <AnimatedTitle
-                  text="FUTUR"
-                  sizeClass="text-[16vw] sm:text-[14vw]"
+                  text="AUJOURD'HUI"
+                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
                   trigger="event"
                   delay={0.2}
-                  className="font-bebas text-foreground leading-none font-black tracking-tighter"
+                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference self-end"
                 />
               </div>
-              {/* Mobile subtitle */}
-              <span className="olha-tag opacity-0 self-end text-[8px] sm:text-[10px] font-serif italic tracking-[0.15em] uppercase opacity-80 mb-0.5 mr-1">
-                Architecture of Balance
-              </span>
-              <AnimatedTitle
-                text="DÈS AUJOURD'HUI"
-                sizeClass="text-[16vw] sm:text-[14vw]"
-                trigger="event"
-                delay={0.3}
-                className="font-bebas text-foreground leading-none font-black tracking-tighter self-end"
+
+              {/* Architecture Tag Bottom */}
+              <div className="olha-tag opacity-0 w-full flex justify-end mt-4">
+                <span className="text-[9px] sm:text-[10px] font-serif italic tracking-[0.15em] uppercase opacity-80">
+                  Architecture of Balance
+                </span>
+              </div>
+
+              {/* Slot Mobile — Paysage, ~60% width */}
+              <div
+                ref={slotMobileRef}
+                className="w-[90vw] h-[50vw] md:w-[55vw] md:h-[35vw] mt-20 md:mt-4 bg-foreground rounded-sm flex-shrink-0 mx-auto"
               />
             </div>
           </div>
         </SectionWrapper>
 
         {/* ══════════════ BOTTOM BAR — Desktop ══════════════ */}
-        <div className="hidden md:flex absolute bottom-6 left-0 right-0 px-12 z-40 items-end justify-between pointer-events-none">
+        <div className="hidden lg:flex absolute bottom-6 left-0 right-0 px-12 z-40 items-end justify-between pointer-events-none">
           {/* LEFT: Services */}
           <div className="olha-tag opacity-0 flex flex-col gap-0.5 parallax-fast">
             {["/ Art Direction", "/ Web Design", "/ Development"].map(
@@ -344,14 +376,14 @@ export default function HeroSection() {
         </div>
 
         {/* ══════════════ BOTTOM BAR — Mobile ══════════════ */}
-        <div className="md:hidden absolute bottom-20 left-0 right-0 px-4 sm:px-8 z-40 flex items-end justify-between pointer-events-none">
+        <div className="lg:hidden absolute bottom-12 left-0 right-0 px-6 sm:px-12 z-40 flex items-end justify-between pointer-events-none">
           {/* LEFT: Services */}
           <div className="olha-tag opacity-0 flex flex-col gap-0.5">
             {["Art Direction", "Web Design", "Development"].map(
               (service, idx) => (
                 <span
                   key={idx}
-                  className="text-[11px] sm:text-sm font-sans uppercase tracking-[0.15em] font-medium opacity-80"
+                  className="text-[9px] sm:text-[11px] font-sans uppercase tracking-[0.15em] font-medium opacity-60"
                 >
                   / {service}
                 </span>
@@ -360,17 +392,16 @@ export default function HeroSection() {
           </div>
 
           {/* RIGHT: Status + scroll */}
-          <div className="olha-tag opacity-0 flex flex-col items-end gap-3">
+          <div className="olha-tag opacity-0 flex flex-col items-end gap-4">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-1 w-1">
+              <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1 w-1 bg-green-500"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
               </span>
-              <span className="text-[11px] font-sans font-medium tracking-[0.2em] uppercase opacity-50">
+              <span className="text-[10px] font-sans font-medium tracking-[0.2em] uppercase opacity-60">
                 Disponible
               </span>
             </div>
-            <div className="w-px h-5 bg-foreground/15 origin-top animate-pulse" />
           </div>
         </div>
       </section>

@@ -210,16 +210,16 @@ export default function AnimatedTitle({
       }}
     >
       <Tag
-        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase leading-none`}
+        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase`}
       >
         {words.map((word, wIdx) => (
           <span
-            key={wIdx}
-            className="flex whitespace-nowrap mr-[0.25em] last:mr-0"
+            key={`word-${wIdx}`}
+            className="inline-flex overflow-hidden mx-[0.15em]"
           >
             {word.split("").map((char, cIdx) => (
               <span
-                key={`${wIdx}-${cIdx}`}
+                key={`letter-${wIdx}-${cIdx}`}
                 className="anim-char-clip"
                 style={{
                   display: "inline-flex",
