@@ -41,8 +41,8 @@ export default function FaqHeader() {
           </span>
           <AnimatedTitle
             text="F.A.Q"
-            sizeClass="text-[clamp(4rem,14vw,16rem)]"
-            className="font-bebas leading-none tracking-tight uppercase"
+            sizeClass="text-[clamp(3.5rem,11vw,13rem)]"
+            className="font-mona leading-none tracking-tight uppercase"
             trigger="scroll"
           />
           {/* Animated Line */}

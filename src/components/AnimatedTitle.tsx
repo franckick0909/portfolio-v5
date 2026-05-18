@@ -37,7 +37,7 @@ export default function AnimatedTitle({
   staggerFrom = "center",
 }: AnimatedTitleProps) {
   const container = useRef<HTMLDivElement>(null);
-  const words = text.split(" ");
+  const words = text.trim().split(/\s+/);
 
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -205,17 +205,17 @@ export default function AnimatedTitle({
       style={{ 
         overflow: "hidden",
         isolation: "isolate",
-        marginBottom: "-1rem",
         overflowY: "hidden",
       }}
     >
       <Tag
-        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase`}
+        className={`${sizeClass} flex whitespace-nowrap justify-center uppercase tracking-[-0.02em] font-mona font-black`}
       >
         {words.map((word, wIdx) => (
           <span
             key={`word-${wIdx}`}
-            className="inline-flex overflow-hidden mx-[0.15em]"
+            className="inline-flex overflow-hidden"
+            style={{ marginRight: wIdx < words.length - 1 ? "0.25em" : "0px" }}
           >
             {word.split("").map((char, cIdx) => (
               <span
@@ -248,6 +248,10 @@ export default function AnimatedTitle({
                     width: "100%",
                     height: "100%",
                     willChange: "transform",
+                    overflow: "hidden",
+                    lineHeight: 0.9, // Retire l'espace de la baseline sous les lettres
+                    clipPath: "inset(0 0 0 0)",
+                    WebkitClipPath: "inset(0 0 0 0)",
                   }}
                 >
                   {char}

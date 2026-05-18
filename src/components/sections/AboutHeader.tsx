@@ -41,8 +41,8 @@ export default function AboutHeader() {
       <div className="w-full max-w-max px-6 md:px-16">
         <AnimatedTitle
           text="A PROPOS"
-          sizeClass="text-[clamp(4rem,14vw,16rem)]"
-          className="font-bebas text-background leading-none tracking-tight uppercase z-40"
+          sizeClass="text-[clamp(3.5rem,11vw,13rem)]"
+          className="font-mona text-background leading-none tracking-tight uppercase z-40"
           trigger="scroll"
         />
         <div

@@ -251,8 +251,8 @@ export default function ServicesSection() {
         <div className="flex flex-col items-end w-full max-w-max">
           <AnimatedTitle
             text="NOS SERVICES"
-            sizeClass="text-[clamp(4rem,12vw,14rem)]"
-            className="font-bebas text-foreground leading-none tracking-tight uppercase text-right"
+            sizeClass="text-[clamp(3.5rem,10vw,12rem)]"
+            className="font-mona text-foreground leading-none tracking-tight uppercase text-right"
             trigger="scroll"
           />
           <div className="services-title-rule w-full h-[2px] md:h-1 opacity-80 origin-right bg-foreground" />

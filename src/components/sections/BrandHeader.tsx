@@ -18,11 +18,33 @@ export default function BrandHeader() {
 
     if (!textRef.current) return;
 
-    // Découpage du texte en mots et en lignes
-    const split = new SplitType(textRef.current, { types: "lines,words" });
+    // Découpage du texte
+    const split = new SplitType(textRef.current, { types: "lines,words" } as any);
+    const splitSubtitles = new SplitType(".anim-bh-subtitle", { types: "chars" } as any);
 
-    // On encapsule chaque mot dans un span interne pour pouvoir cumuler 
-    // l'animation d'apparition et l'animation de distorsion de l'Observer
+    // Wrapper pour l'effet Masked
+    const wrapElements = (elems: HTMLElement[], isInline = false) => {
+      elems.forEach(el => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "mask-wrapper";
+        wrapper.style.overflow = "hidden";
+        wrapper.style.display = isInline ? "inline-block" : "block";
+        if (isInline) {
+           wrapper.style.paddingBottom = "0.2em";
+           wrapper.style.marginBottom = "-0.2em";
+        } else {
+           wrapper.style.paddingBottom = "0.2em";
+           wrapper.style.marginBottom = "-0.2em";
+        }
+        el.parentNode?.insertBefore(wrapper, el);
+        wrapper.appendChild(el);
+      });
+    };
+
+    if (split.lines) wrapElements(split.lines, false);
+    if (splitSubtitles.chars) wrapElements(splitSubtitles.chars, true);
+
+    // On encapsule chaque mot dans un span interne pour l'Observer
     const inners: HTMLElement[] = [];
     split.words?.forEach(word => {
       const inner = document.createElement('span');
@@ -30,49 +52,58 @@ export default function BrandHeader() {
       word.innerHTML = '';
       word.appendChild(inner);
       word.style.display = 'inline-flex';
-      word.style.overflow = 'visible'; // Permet à la distorsion de déborder
+      word.style.overflow = 'visible';
       inner.style.display = 'inline-block';
       inner.style.transformOrigin = "bottom center";
       inners.push(inner);
     });
 
-    // 1. Animation d'apparition au scroll (ScrollTrigger classique)
-    gsap.fromTo(split.words, 
-      { 
-        y: 60, 
-        opacity: 0,
-        rotateX: -90 // Pliage 3D
-      },
-      {
-        y: 0,
-        opacity: 1,
-        rotateX: 0,
-        duration: 1.2,
-        stagger: 0.04,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 50%",
-          end: "bottom 50%",
-          toggleActions: "play reverse play reverse",
-        }
+    let inView = false;
+
+    // 1. Animation d'apparition au scroll (Lignes + Lettres Masked)
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 60%",
+        toggleActions: "play none none reverse",
+        onEnter: () => inView = true,
+        onLeave: () => inView = false,
+        onEnterBack: () => inView = true,
+        onLeaveBack: () => inView = false,
       }
-    );
+    });
+
+    if (splitSubtitles.chars) {
+      tl.from(splitSubtitles.chars, {
+        yPercent: 120,
+        duration: 0.8,
+        stagger: 0.02,
+        ease: "power4.out"
+      }, 0);
+    }
+
+    if (split.lines) {
+      tl.from(split.lines, {
+        yPercent: 120,
+        duration: 1.2,
+        stagger: 0.1,
+        ease: "power4.out",
+        onComplete: () => {
+          // Permet au skew (Observer) de déborder du masque une fois l'animation finie
+          split.lines?.forEach(line => {
+            if (line.parentElement?.classList.contains('mask-wrapper')) {
+              line.parentElement.style.overflow = "visible";
+            }
+          });
+        }
+      }, 0.2); // Légèrement après les sous-titres
+    }
 
     // 1.b Animation de la flèche (Apparition puis flottement)
-    gsap.fromTo(".arrow-container", 
+    tl.fromTo(".arrow-container", 
       { opacity: 0, y: -20 },
-      {
-        opacity: 1, 
-        y: 0, 
-        duration: 1, 
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 50%",
-          toggleActions: "play reverse play reverse",
-        }
-      }
+      { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+      0.4
     );
 
     gsap.to(".arrow-svg", {
@@ -81,19 +112,6 @@ export default function BrandHeader() {
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut"
-    });
-
-    // Variable pour savoir si on est dans la section
-    let inView = false;
-    
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: "top bottom",
-      end: "bottom top",
-      onEnter: () => inView = true,
-      onLeave: () => inView = false,
-      onEnterBack: () => inView = true,
-      onLeaveBack: () => inView = false,
     });
 
     // 2. L'effet magique avec OBSERVER : 
@@ -105,7 +123,6 @@ export default function BrandHeader() {
         if (!inView || inners.length === 0) return;
         
         const velocity = self.velocityY;
-        // On limite la distorsion pour que ça reste lisible
         const skew = gsap.utils.clamp(-15, 15, velocity * -0.005);
         const scale = 1 + Math.abs(velocity * 0.0001);
         
@@ -116,7 +133,7 @@ export default function BrandHeader() {
             y: skew * 0.5,
             duration: 0.3,
             ease: "power2.out",
-            delay: i * 0.003, // Crée une légère "vague" physique
+            delay: i * 0.003,
             overwrite: "auto",
           });
         });
@@ -124,14 +141,13 @@ export default function BrandHeader() {
       onStop: () => {
         if (!inView || inners.length === 0) return;
         
-        // Retour élastique à la normale quand on arrête de scroller
         inners.forEach((inner, i) => {
           gsap.to(inner, {
             skewX: 0,
             scaleY: 1,
             y: 0,
             duration: 1.2,
-            ease: "elastic.out(1, 0.3)", // Effet ressort
+            ease: "elastic.out(1, 0.3)",
             delay: i * 0.003,
             overwrite: "auto",
           });
@@ -142,6 +158,7 @@ export default function BrandHeader() {
     return () => {
       observer.kill();
       split.revert();
+      splitSubtitles.revert();
     };
   }, { scope: sectionRef });
 
@@ -153,17 +170,17 @@ export default function BrandHeader() {
       style={{ perspective: "1000px" }} // Nécessaire pour le rotateX 3D
     >
       {/* Micro-typographies (Tags éditoriaux) */}
-      <div className="absolute top-8 left-8 md:top-12 md:left-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80">
+      <div className="anim-bh-subtitle absolute top-8 left-8 md:top-12 md:left-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80">
         [ 01 ] EXPERTISE
       </div>
-      <div className="absolute top-8 right-8 md:top-12 md:right-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80 text-right">
+      <div className="anim-bh-subtitle absolute top-8 right-8 md:top-12 md:right-12 text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-sans text-background/80 text-right">
         VISION & APPROACH
       </div>
 
       <div className="absolute left-8 md:left-12 w-2/3 md:w-1/2 pointer-events-none mt-8 md:mt-0">
         <h4 
           ref={textRef}
-          className="text-[clamp(2rem,3vw,5rem)] font-serif tracking-tight leading-tight font-medium mix-blend-difference opacity-90 text-background text-start"
+          className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif leading-[1.15] tracking-tight font-medium text-balance mix-blend-difference opacity-90 text-background text-start"
         >
           {t.heroExperience}
         </h4>

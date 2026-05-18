@@ -40,14 +40,14 @@ export default function WorkHeader() {
         <div className="flex flex-col w-full md:w-auto md:items-end">
           <AnimatedTitle 
             text="TRAVAUX" 
-            sizeClass="text-[clamp(4rem,12vw,14rem)]" 
-            className="font-bebas leading-none tracking-tight uppercase md:text-right"
+            sizeClass="text-[clamp(3.5rem,10vw,12rem)]" 
+            className="font-mona leading-none tracking-tight uppercase md:text-right"
             trigger="scroll"
           />
           <AnimatedTitle 
             text="RÉCENTS" 
-            sizeClass="text-[clamp(4rem,12vw,14rem)]" 
-            className="font-bebas leading-none tracking-tight uppercase md:text-right"
+            sizeClass="text-[clamp(3.5rem,10vw,12rem)]" 
+            className="font-mona leading-none tracking-tight uppercase md:text-right"
             trigger="scroll"
           />
           {/* Animated Line */}

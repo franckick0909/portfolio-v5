@@ -195,7 +195,7 @@ export default function HeroSection() {
       {/* Sorti de la section pour ne pas être impacté par overflow-hidden ou le pin spacer */}
       <div
         ref={portalRef}
-        className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground ml-2 md:ml-3"
+        className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground"
         style={{ zIndex: 30 }}
       >
         {/* Spline 3D Scene - Ratio Paysage forcé sur mobile (150vh) pour reculer la caméra */}
@@ -215,68 +215,68 @@ export default function HeroSection() {
         <SectionWrapper className="relative z-30 w-full h-full flex flex-col items-center justify-center">
           <div
             ref={titleWrapper}
-            className="relative z-10 pointer-events-none flex flex-col items-center w-full md:mb-10"
+            className="relative z-10 pointer-events-none flex flex-col items-center w-full md:mb-10 "
           >
             {/* ══════════════ DESKTOP TITLE (LOCKED) ══════════════ */}
-            <div className="hidden lg:flex flex-col items-center justify-center w-full relative max-w-[90vw] leading-none">
+            <div className="hidden lg:flex flex-col items-center justify-center w-full relative max-w-[95vw]">
               {/* Line 1: CONCEVOIR - ALIGN START */}
               <div className="w-full flex justify-start ">
                 <AnimatedTitle
                   text="CONCEVOIR"
-                  sizeClass="text-[14vw]"
+                  sizeClass="text-[9vw]"
                   trigger="event"
                   delay={0}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
+                  className="font-mona text-foreground font-black mix-blend-difference"
                   staggerFrom="start"
                 />
               </div>
 
               {/* Tag under CONCEVOIR */}
-              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-start pt-0">
+              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-start pt-0 pl-[0.5vw]">
                 <span className="text-[10px] md:text-xs font-sans tracking-[0.2em] uppercase font-medium opacity-60 text-foreground">
                   RATIO 1,618 — v3.0
                 </span>
               </div>
 
               {/* Line 2: LE [GAP] FUTUR - ALIGN CENTER */}
-              <div className="w-full flex justify-center items-center gap-2">
+              <div className="w-full flex justify-center items-center gap-[2vw] mt-[-1vw]">
                 <AnimatedTitle
                   text="LE"
-                  sizeClass="text-[13vw]"
+                  sizeClass="text-[9vw]"
                   trigger="event"
                   delay={0.15}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
+                  className="font-mona font-black text-outline"
                   staggerFrom="start"
                 />
                 <div
                   ref={slotDesktopRef}
-                  className="w-[20vw] h-[10vw] flex-shrink-0"
+                  className="w-[14vw] h-[8vw] flex-shrink-0"
                 />
                 <AnimatedTitle
                   text="FUTUR"
-                  sizeClass="text-[13vw]"
+                  sizeClass="text-[9vw]"
                   trigger="event"
                   delay={0.25}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
+                  className="font-mona font-black text-outline"
                   staggerFrom="start"
                 />
               </div>
 
               {/* Subtitle above DÈS AUJOURD'HUI */}
-              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-end pt-0">
+              <div className="olha-tag opacity-0 pointer-events-none w-full flex justify-end pb-1 pr-[0.5vw]">
                 <span className="text-[10px] md:text-xs font-serif italic tracking-[0.15em] uppercase opacity-80 text-foreground">
                   Architecture of Balance
                 </span>
               </div>
 
               {/* Line 3: DÈS AUJOURD'HUI - ALIGN END */}
-              <div className="w-full flex justify-end">
+              <div className="w-full flex justify-end mt-[-1vw]">
                 <AnimatedTitle
                   text="DÈS AUJOURD'HUI"
-                  sizeClass="text-[13vw]"
+                  sizeClass="text-[9vw]"
                   trigger="event"
                   delay={0.4}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
+                  className="font-mona text-foreground font-black mix-blend-difference"
                   staggerFrom="center"
                 />
               </div>
@@ -294,26 +294,26 @@ export default function HeroSection() {
 
                 <AnimatedTitle
                   text="CONCEVOIR"
-                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
+                  sizeClass="text-[12vw] sm:text-[11vw] md:text-[9.5vw]"
                   trigger="event"
                   delay={0}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference self-start"
+                  className="font-mona text-foreground font-black tracking-tighter mix-blend-difference self-start"
                 />
 
                 <AnimatedTitle
                   text="LE FUTUR DÈS"
-                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
+                  sizeClass="text-[12vw] sm:text-[11vw] md:text-[9.5vw]"
                   trigger="event"
                   delay={0.1}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference"
+                  className="font-mona text-foreground font-black tracking-tighter mix-blend-difference"
                 />
 
                 <AnimatedTitle
                   text="AUJOURD'HUI"
-                  sizeClass="text-[20vw] sm:text-[19vw] md:text-[16vw]"
+                  sizeClass="text-[12vw] sm:text-[11vw] md:text-[9.5vw]"
                   trigger="event"
                   delay={0.2}
-                  className="font-bebas text-foreground font-black tracking-tighter mix-blend-difference self-end"
+                  className="font-mona text-foreground font-black tracking-tighter mix-blend-difference self-end"
                 />
               </div>
 
@@ -331,6 +331,14 @@ export default function HeroSection() {
               />
             </div>
           </div>
+
+          {/* CENTER: Scroll Indicator */}
+          <div className="olha-tag opacity-0 flex flex-col items-center gap-3 absolute right-10 top-[25vh]">
+            <span className="text-[10px] font-sans uppercase tracking-[0.4em] font-medium opacity-40 [writing-mode:vertical-rl] rotate-180">
+              Scroll
+            </span>
+            <div className="w-px h-12 bg-foreground/40 origin-top animate-pulse" />
+          </div>
         </SectionWrapper>
 
         {/* ══════════════ BOTTOM BAR — Desktop ══════════════ */}
@@ -341,7 +349,7 @@ export default function HeroSection() {
               (service, idx) => (
                 <span
                   key={idx}
-                  className="text-[10px] lg:text-xs font-sans uppercase tracking-[0.15em] font-medium opacity-70"
+                  className="text-xs lg:text-sm font-sans uppercase tracking-[0.15em] font-medium opacity-70"
                 >
                   {service}
                 </span>
@@ -349,20 +357,12 @@ export default function HeroSection() {
             )}
           </div>
 
-          {/* CENTER: Scroll Indicator */}
-          <div className="olha-tag opacity-0 flex flex-col items-center gap-1.5">
-            <span className="text-[8px] font-sans uppercase tracking-[0.3em] font-medium opacity-40">
-              Scroll
-            </span>
-            <div className="w-px h-6 bg-foreground/40 origin-top animate-pulse" />
-          </div>
-
           {/* RIGHT: Status */}
           <div className="olha-tag opacity-0 flex items-center gap-3 parallax-slow">
             <div className="flex items-center gap-2">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-foreground/50"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-foreground"></span>
               </span>
               <span className="text-[10px] lg:text-xs font-sans font-medium tracking-[0.2em] uppercase opacity-70">
                 Disponible

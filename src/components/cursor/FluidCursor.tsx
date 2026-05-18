@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef, useState } from "react";
 import SplashCursor from "./SplashCursor";
 
 /**
  * FluidCursor — Complete Cappen-style cursor implementation
- * 
+ *
  * Includes:
  * 1. The WebGL fluid ink simulation (SplashCursor) acting as the background trail
  * 2. The "VOIR" label that scales in when hovering specific elements
@@ -17,6 +18,24 @@ export default function FluidCursor() {
   const target = useRef({ x: -100, y: -100 });
   const rafRef = useRef<number>(0);
   const isHoverLabel = useRef(false);
+
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const st = ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: "+=2000", // Couvre environ HeroSection + BrandSection
+      onLeave: () => setIsSplashVisible(false),
+      onEnterBack: () => setIsSplashVisible(true),
+    });
+
+    return () => {
+      st.kill();
+    };
+  }, []);
 
   useEffect(() => {
     const label = labelRef.current;
@@ -59,17 +78,24 @@ export default function FluidCursor() {
       gsap.fromTo(
         label,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.4)" }
+        { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.4)" },
       );
     };
 
     const onLeaveView = () => {
       isHoverLabel.current = false;
-      gsap.to(label, { scale: 0, opacity: 0, duration: 0.25, ease: "power2.in" });
+      gsap.to(label, {
+        scale: 0,
+        opacity: 0,
+        duration: 0.25,
+        ease: "power2.in",
+      });
     };
 
     // Attach to all interactive elements
-    const views = document.querySelectorAll("[data-cursor='view'], figure, .works-card");
+    const views = document.querySelectorAll(
+      "[data-cursor='view'], figure, .works-card",
+    );
 
     views.forEach((el) => {
       el.addEventListener("mouseenter", onEnterView);
@@ -89,21 +115,21 @@ export default function FluidCursor() {
   return (
     <>
       {/* ── 1. WebGL Fluid Ink Simulation ── */}
-      {/* We use SplashCursor as the underlying trail layer. 
-          Settings matched for a thick ink splatter that fades like Cappen */}
-      <SplashCursor 
-        COLOR="#ffffff" 
-        TRANSPARENT={true}
-        SPLAT_RADIUS={0.15}     // Smaller trail size for a more refined cursor
-        SPLAT_FORCE={6000}     // More intense splatter
-        DENSITY_DISSIPATION={4.5} // Threshold makes it shrink, this controls shrink speed
-        VELOCITY_DISSIPATION={3} 
-      />
+      {isSplashVisible && (
+        <SplashCursor
+          COLOR="#ffffff"
+          TRANSPARENT={true}
+          SPLAT_RADIUS={0.15}
+          SPLAT_FORCE={6000}
+          DENSITY_DISSIPATION={4.5}
+          VELOCITY_DISSIPATION={3}
+        />
+      )}
 
       {/* ── 2. Hover label (View / Voir) ── */}
       <div
         ref={labelRef}
-        className="pointer-events-none fixed top-0 left-0 z-[9999]"
+        className="fluid-cursor-label pointer-events-none fixed top-0 left-0 z-[201]"
         style={{
           // Anchor: bottom-left of the label aligns with cursor position
           marginLeft: 15,

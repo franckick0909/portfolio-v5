@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useEffect, useState } from "react";
 import Matter from "matter-js";
 import { useI18n } from "@/lib/i18n";
+import SplitType from "split-type";
 
 export default function BrandSection() {
   const { t } = useI18n();
@@ -56,6 +57,34 @@ export default function BrandSection() {
       duration: 1,
       ease: "power2.inOut"
     });
+
+    // Animation SplitType Masked pour le texte éditorial
+    const brandText = document.querySelector(".anim-brand-text");
+    if (brandText) {
+      const splitBrandText = new SplitType(brandText as HTMLElement, { types: "lines" } as any);
+      if (splitBrandText.lines) {
+        splitBrandText.lines.forEach(line => {
+          const wrapper = document.createElement("div");
+          wrapper.style.overflow = "hidden";
+          wrapper.style.paddingBottom = "0.2em";
+          wrapper.style.marginBottom = "-0.2em";
+          line.parentNode?.insertBefore(wrapper, line);
+          wrapper.appendChild(line);
+        });
+
+        gsap.from(splitBrandText.lines, {
+          yPercent: 120,
+          duration: 1.5,
+          stagger: 0.1,
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 60%",
+            toggleActions: "play none none reverse"
+          }
+        });
+      }
+    }
 
   }, { scope: containerRef });
 
@@ -126,7 +155,7 @@ export default function BrandSection() {
       clone.innerText = span.innerText;
       // On retire TOUTES les classes complexes (transition, opacité, et surtout 'real-char' qui est pollué par GSAP)
       // Ajout du hover de la couleur accent et curseur interactif
-      clone.className = "inline-block whitespace-pre text-background hover:text-accent transition-colors duration-300 cursor-grab active:cursor-grabbing"; 
+      clone.className = "inline-block whitespace-pre text-background hover:text-accent transition-colors duration-300 select-none"; 
       clone.style.position = "absolute";
       clone.style.left = `${x}px`;
       clone.style.top = `${y}px`;
@@ -214,25 +243,62 @@ export default function BrandSection() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Outil MouseConstraint pour attraper au clic (Drag & Throw)
-    const mouse = Matter.Mouse.create(physicsDOM);
-    
-    // On retire les écoutes de scroll Matter pour ne pas retenir la page en otage !
-    // @ts-ignore
-    mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
-    // @ts-ignore
-    mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
-    // @ts-ignore
-    mouse.element.removeEventListener("wheel", mouse.mousewheel);
+    // Outil de balayage interactif (Mouse Sweep) au survol
+    let lastMouseX: number | null = null;
+    let lastMouseY: number | null = null;
 
-    const mouseConstraint = Matter.MouseConstraint.create(engine, {
-      mouse: mouse,
-      constraint: {
-        stiffness: 0.2,
-        render: { visible: false }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!physicsDOM) return;
+      const rect = physicsDOM.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (lastMouseX === null || lastMouseY === null) {
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        return;
       }
-    });
-    Matter.Composite.add(world, mouseConstraint);
+
+      const vx = mouseX - lastMouseX;
+      const vy = mouseY - lastMouseY;
+      const speed = Math.sqrt(vx * vx + vy * vy);
+
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
+
+      // Si la souris bouge très peu, on ne déclenche pas d'impulsion
+      if (speed < 0.5) return;
+
+      const sweepRadius = 150; // Rayon généreux pour un bel effet de souffle/balayage
+
+      newClones.forEach(({ body }) => {
+        const dx = body.position.x - mouseX;
+        const dy = body.position.y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < sweepRadius && dist > 0) {
+          const pushFactor = (1 - dist / sweepRadius);
+          
+          // Impulsion combinant l'éloignement radial et le vecteur de la souris
+          const targetVx = body.velocity.x + (dx / dist) * pushFactor * 8 + (vx * 0.3);
+          // Impulsion vers le haut pour décoller du sol avec un effet d'apesanteur fluide
+          const targetVy = body.velocity.y + (dy / dist) * pushFactor * 8 + (vy * 0.3) - (pushFactor * 6);
+          
+          // Plafond de vélocité pour garder la simulation parfaitement stable
+          const maxV = 28;
+          const clampedVx = Math.max(-maxV, Math.min(maxV, targetVx));
+          const clampedVy = Math.max(-maxV, Math.min(maxV, targetVy));
+
+          Matter.Body.setVelocity(body, { x: clampedVx, y: clampedVy });
+          
+          // Ajout d'une vélocité angulaire pour faire tournoyer les lettres au passage
+          const spinDirection = vx > 0 ? 1 : -1;
+          Matter.Body.setAngularVelocity(body, body.angularVelocity + spinDirection * pushFactor * 0.1);
+        }
+      });
+    };
+
+    physicsDOM.addEventListener("mousemove", handleMouseMove);
 
     // Boucle de mise à jour des clones
     const update = () => {
@@ -255,6 +321,7 @@ export default function BrandSection() {
     update();
 
     return () => {
+      if (physicsDOM) physicsDOM.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       if (engineRef.current) Matter.Engine.clear(engineRef.current);
@@ -280,16 +347,22 @@ export default function BrandSection() {
         </div>
       </div>
 
+      <div className="absolute top-24 md:top-32 left-8 md:left-16 w-full max-w-[280px] md:max-w-sm z-30 mix-blend-difference pointer-events-none">
+        <p className="anim-brand-text font-sans text-sm md:text-base leading-relaxed text-background/60 text-balance">
+          Derrière chaque ligne de code se cache une vision. Mon approche fusionne la rigueur technique avec une sensibilité artistique, pour concevoir des expériences mémorables.
+        </p>
+      </div>
+
       {/* Vrai texte, gère le flux de la page */}
       <div 
         ref={realTextRef}
         className="flex-1 flex flex-col items-center justify-center relative z-20 pointer-events-none select-none pb-4 md:pb-8"
       >
-        <div className="flex flex-col items-center gap-0">
+        <div className="flex flex-col items-center gap-1">
           {textLines.map((line, lineIdx) => (
             <h2 
               key={lineIdx}
-              className="font-bebas text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight whitespace-nowrap pointer-events-auto"
+              className="font-anton text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-[1.1] uppercase tracking-tight whitespace-nowrap pointer-events-auto"
             >
               {line.split("").map((char, charIdx) => (
                 <span
@@ -308,7 +381,7 @@ export default function BrandSection() {
       {/* Récipient physique pour les clones, purement visuel. Hérite des tailles de police parentes pour les clones */}
       <div 
         ref={physicsContainerRef} 
-        className="absolute inset-0 pointer-events-auto z-25 font-bebas text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-none uppercase tracking-tight" 
+        className="absolute inset-0 pointer-events-auto z-25 font-anton text-[clamp(3rem,12vw,15.5vh)] md:text-[clamp(4rem,10.5vw,15.5vh)] leading-[1.1] uppercase tracking-tight" 
       />
 
       <div className="w-full h-px bg-background/80 mix-blend-difference z-30 relative" />

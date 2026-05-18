@@ -166,14 +166,12 @@ function SpinningDrum({
           color="#f7f7f7"
           rotateSpeed={0.8}
           font="/fonts/Anton-Regular.ttf"
-          outlineWidth={0.005} // Rend la police Anton encore plus épaisse (bold)
-          outlineColor="#f7f7f7"
         />
       </group>
 
       <group ref={group2} scale={0} position={[0, -4, 0]}>
         <CurvedText
-          text="CONCEPTION UX/UI • DIRECTION ARTISTIQUE • DÉVELOPPEMENT CRÉATIF • "
+          text="UX/UI • ART DIRECTION • DEV CRÉATIF • "
           radius={1.6}
           height={-0.18}
           fontSize={0.11}
@@ -195,10 +193,11 @@ export default function PreloaderCanvas({
   return (
     <Canvas
       camera={{ position: [0, 0, 6], fov: 40 }}
+      dpr={[1, 1.5]}
       gl={{
-        antialias: true,
+        antialias: false,
         alpha: true,
-        powerPreference: "default",
+        powerPreference: "high-performance",
         failIfMajorPerformanceCaveat: false,
       }}
       onCreated={({ gl }) => {

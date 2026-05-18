@@ -5,7 +5,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useI18n } from "@/lib/i18n";
-import AnimatedTitle from "@/components/AnimatedTitle";
 import Image from "next/image";
 
 // Placeholder images for the projects

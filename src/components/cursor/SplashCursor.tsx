@@ -1325,7 +1325,7 @@ export default function SplashCursor({
   ]);
 
   return (
-    <div className="splash-cursor-container fixed top-0 left-0 z-[9998] pointer-events-none w-full h-full mix-blend-difference opacity-100 transition-opacity duration-500">
+    <div className="splash-cursor-container fixed top-0 left-0 z-[260] pointer-events-none w-full h-full mix-blend-difference opacity-100 transition-opacity duration-500">
       <canvas ref={canvasRef} id="fluid" className="w-screen h-screen block"></canvas>
     </div>
   );
