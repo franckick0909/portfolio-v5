@@ -32,6 +32,10 @@ html[data-cursor-surface="dark"] {
   --font-mona: var(--font-mona), sans-serif;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -122,4 +126,34 @@ body.menu-open .fluid-cursor-label {
 .text-outline {
   color: transparent;
   -webkit-text-stroke: 2px var(--foreground);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation: center-clip-reveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes center-clip-reveal {
+  0% {
+    clip-path: inset(50% 50% 50% 50% round 2vw);
+    transform: scale(1.4);
+  }
+  78% {
+    clip-path: inset(0% 0% 0% 0% round 2vw);
+    transform: scale(1);
+  }
+  100% {
+    clip-path: inset(0% 0% 0% 0% round 0);
+    transform: scale(1);
+  }
 }

@@ -47,7 +47,8 @@ export default function PreloaderImages() {
       // Initialisation : au centre (x:0, y:0 par rapport à la classe CSS centered)
       gsap.set(images, { x: 0, y: 0, scale: 0, opacity: 1 });
 
-      const tl = gsap.timeline({ delay: 5.5 });
+      const isFast = window.innerWidth < 1024;
+      const tl = gsap.timeline({ delay: isFast ? 1.5 : 5.5 });
 
       // 1. Apparition au centre
       tl.to(firstImage, {

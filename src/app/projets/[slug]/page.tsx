@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { notFound } from "next/navigation";
 import WorksFooter from "@/components/sections/WorksFooter";
 import Header from "@/components/navigation/Header";

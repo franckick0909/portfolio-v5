@@ -1,6 +1,7 @@
 import SmoothScroll from "@/components/SmoothScroll";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display, Oswald, Bebas_Neue, Anton, Instrument_Serif, Mona_Sans } from "next/font/google";
+import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -52,13 +53,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="fr"
-      className={`${inter.variable} ${playfair.variable} ${oswald.variable} ${bebas.variable} ${anton.variable} ${mona.variable} ${instrument.variable} dark antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground selection:bg-foreground selection:text-background">
-        <SmoothScroll>{children}</SmoothScroll>
-      </body>
-    </html>
+    <ViewTransitions>
+      <html
+        lang="fr"
+        className={`${inter.variable} ${playfair.variable} ${oswald.variable} ${bebas.variable} ${anton.variable} ${mona.variable} ${instrument.variable} dark antialiased`}
+      >
+        <body className="min-h-full flex flex-col font-sans bg-background text-foreground selection:bg-foreground selection:text-background">
+          <SmoothScroll>{children}</SmoothScroll>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

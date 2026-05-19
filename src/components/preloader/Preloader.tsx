@@ -15,12 +15,20 @@ export default function Preloader() {
   const [exitStage, setExitStage] = useState(0);
   const [imagesImploded, setImagesImploded] = useState(false);
 
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 1024);
+  }, []);
+
   // 1. Gestion du compteur
   useEffect(() => {
     gsap.set(".counter-value", { yPercent: 120 });
     gsap.set(".preloader-tags", { opacity: 0 });
 
-    const tl = gsap.timeline({ delay: 1.2 });
+    const isFast = window.innerWidth < 1024;
+
+    const tl = gsap.timeline({ delay: isFast ? 0.5 : 1.2 });
     tl.to(".counter-value", { yPercent: 0, duration: 1.2, ease: "expo.out" });
     tl.to(".preloader-tags", { opacity: 1, duration: 1 }, "<0.4");
 
@@ -31,10 +39,10 @@ export default function Preloader() {
             clearInterval(timer);
             return 100;
           }
-          return p + 1.2;
+          return p + (isFast ? 3 : 1.2);
         });
-      }, 70);
-    }, 1000);
+      }, isFast ? 30 : 70);
+    }, isFast ? 500 : 1000);
 
     return () => clearTimeout(startCount);
   }, []);
@@ -103,7 +111,7 @@ export default function Preloader() {
       </div>
 
       <div className="preloader-canvas absolute inset-0 z-20 flex items-center justify-center">
-        <PreloaderCanvas progress={progress} exitStage={exitStage} />
+        {isDesktop && <PreloaderCanvas progress={progress} exitStage={exitStage} />}
       </div>
 
       <div className="preloader-text relative z-30 w-full h-full p-8 md:p-12 flex flex-col justify-between pointer-events-none">

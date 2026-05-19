@@ -333,8 +333,8 @@ export default function HeroSection() {
           </div>
 
           {/* CENTER: Scroll Indicator */}
-          <div className="olha-tag opacity-0 flex flex-col items-center gap-3 absolute right-10 top-[25vh]">
-            <span className="text-[10px] font-sans uppercase tracking-[0.4em] font-medium opacity-40 [writing-mode:vertical-rl] rotate-180">
+          <div className="olha-tag opacity-0 flex flex-col items-center gap-3 absolute right-4 top-[13vh] md:right-6 md:top-[60vh] lg:right-8 lg:top-[25vh] xl:right-12 ">
+            <span className="text-[8px] md:text-[9px] lg:text-[10px] font-sans uppercase tracking-[0.4em] font-medium opacity-40 [writing-mode:vertical-rl] rotate-180">
               Scroll
             </span>
             <div className="w-px h-12 bg-foreground/40 origin-top animate-pulse" />

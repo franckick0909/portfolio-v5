@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { motion, type Transition } from "motion/react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -26,6 +26,7 @@ const menuItems = [
   { label: "Home", href: "/", img: imgHome, col: 1 },
   { label: "Services", href: "/#services", img: imgServices, col: 1 },
   { label: "À Propos", href: "/#about", img: imgAbout, col: 1 },
+  { label: "Projets", href: "/#works", img: imgHarmonie, col: 1, mobileOnly: true },
   { label: "Contact", href: "/#footer", img: imgContact, col: 1 },
   // Colonne 2 : Projets
   { label: "Harmonie", href: "/projets/harmonie", img: imgHarmonie, col: 2 },
@@ -34,6 +35,15 @@ const menuItems = [
   { label: "Sophie", href: "/projets/sophie", img: imgSophie, col: 2 },
   { label: "Tatoo", href: "/projets/tatoo", img: imgTatoo, col: 2 },
 ];
+
+const socialLinks = {
+  twitter: "https://x.com/FranckDevs",
+  linkedin: "https://www.linkedin.com/in/franck-chapelon-154084289/",
+  github: "https://github.com/FranckDevs",
+};
+
+const emailAddress = "franckchapelon09@gmail.com";
+
 
 type HeaderProps = {
   projectName?: string;
@@ -51,14 +61,36 @@ export default function Header({
   const { locale, toggleLocale } = useI18n();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [currentHash, setCurrentHash] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHash(window.location.hash);
+      
+      const handleHashChange = () => {
+        setCurrentHash(window.location.hash);
+      };
+      window.addEventListener("hashchange", handleHashChange);
+      return () => window.removeEventListener("hashchange", handleHashChange);
+    }
+  }, [isOpen, pathname]);
 
   const isProjectPage = pathname?.startsWith("/projets/");
 
   // Index de la page courante (defaultIndex)
   const foundIndex = menuItems.findIndex((m) => {
-    if (m.href === "/") return pathname === "/";
-    return pathname?.startsWith(m.href);
+    if (m.href === "/") {
+      return pathname === "/" && (!currentHash || currentHash === "" || currentHash === "#");
+    }
+    // Pour les ancres (#services etc.)
+    if (m.href.startsWith("/#")) {
+      const hashToMatch = m.href.substring(1); // "#services"
+      return pathname === "/" && currentHash === hashToMatch;
+    }
+    // Pour les projets, correspondance exacte
+    return pathname === m.href || pathname?.startsWith(m.href + "/");
   });
+  // Sur une page projet, on cherche le lien correspondant dans la col 2
   const defaultIndex = foundIndex !== -1 ? foundIndex : 0;
 
   // activeIndex contrôle l'image de fond
@@ -113,7 +145,7 @@ export default function Header({
 
   useGSAP(
     () => {
-      gsap.set(menuOverlayRef.current, { yPercent: 100 });
+      gsap.set(menuOverlayRef.current, { clipPath: "inset(0% 0% 100% 0%)" });
     },
     { scope: containerRef },
   );
@@ -122,16 +154,16 @@ export default function Header({
     if (isOpen) {
       setIsOpen(false);
       gsap.to(menuOverlayRef.current, {
-        yPercent: -100,
-        duration: 1,
-        ease: "power2.inOut",
+        clipPath: "inset(0% 0% 100% 0%)",
+        duration: 0.85,
+        ease: "power3.inOut",
       });
     } else {
       setIsOpen(true);
       gsap.fromTo(
         menuOverlayRef.current,
-        { yPercent: 100 },
-        { yPercent: 0, duration: 1.4, ease: "expo.out" },
+        { clipPath: "inset(0% 0% 100% 0%)" },
+        { clipPath: "inset(0% 0% 0% 0%)", duration: 1.1, ease: "power4.inOut" }
       );
       gsap.fromTo(
         ".menu-fade-item",
@@ -142,8 +174,8 @@ export default function Header({
           stagger: 0.05,
           duration: 0.8,
           ease: "power3.out",
-          delay: 0.1,
-        },
+          delay: 0.3,
+        }
       );
     }
   });
@@ -188,10 +220,11 @@ export default function Header({
       {/* MENU OVERLAY */}
       <div
         ref={menuOverlayRef}
-        className={`fixed inset-0 w-full h-screen bg-background z-[250] flex flex-col md:flex-row ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+        style={{ clipPath: "inset(0% 0% 100% 0%)" }}
+        className={`fixed inset-0 w-full h-dvh bg-background z-[250] flex flex-col md:flex-row ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         {/* PARTIE GAUCHE : IMAGES AVEC ANIMATEPRESENCE POUR FLUIDITÉ MAXIMALE */}
-        <div className="relative w-full h-[35vh] md:h-full md:w-[40%] overflow-hidden bg-[#1A1A1A]">
+        <div className="hidden md:block relative w-full h-[35vh] md:h-full md:w-[40%] overflow-hidden bg-[#1A1A1A]">
           {menuItems.map((link, i) => {
             const isActive = activeIndex === i;
             const isPrev = prevIndexRef.current === i;
@@ -220,7 +253,7 @@ export default function Header({
                   alt={`Menu background ${i}`}
                   fill
                   className="object-cover"
-                  priority={isActive || isPrev}
+                  priority
                 />
                 <div className="absolute inset-0 bg-black/10" />
               </motion.div>
@@ -229,13 +262,13 @@ export default function Header({
         </div>
 
         {/* PARTIE DROITE : CONTENU */}
-        <div className="w-full md:w-[60%] h-[65vh] md:h-full flex flex-col p-6 md:p-16 lg:p-24 text-[#1A1A1A] overflow-y-auto">
-          <div className="menu-fade-item text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] text-black/50 mb-6 md:mb-12">
+        <div className="w-full md:w-[60%] h-dvh md:h-full flex flex-col justify-start pt-24 pb-12 px-6 md:px-10 lg:px-20 text-[#1A1A1A] overflow-y-auto">
+          <div className="menu-fade-item text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] text-black/50 mb-4 md:mb-12">
             Découvrir
           </div>
 
           <div
-            className="flex flex-col md:flex-row gap-8 md:gap-16 flex-1"
+            className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-16 flex-1"
             onMouseLeave={handleMouseLeaveNav}
           >
             {/* Colonne 1 : Pages Principales */}
@@ -249,7 +282,7 @@ export default function Header({
                 return (
                   <div
                     key={i}
-                    className="menu-fade-item relative flex items-center py-2 w-max pr-16 md:pr-24"
+                    className={`menu-fade-item relative flex items-center py-0.5 sm:py-1 w-max pr-6 md:pr-10 lg:pr-24 ${(link as any).mobileOnly ? "md:hidden" : ""}`}
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     {/* Flèche Framer Motion avec masque de rognage */}
@@ -290,7 +323,7 @@ export default function Header({
                         href={link.href}
                         onClick={toggleMenu}
                         onMouseEnter={() => handleMouseEnter(i)}
-                        className={`font-sans text-3xl md:text-4xl lg:text-5xl font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
+                        className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                       >
                         {link.label}
                       </Link>
@@ -301,19 +334,20 @@ export default function Header({
             </nav>
 
             {/* Colonne 2 : Projets */}
-            <nav className="flex flex-col gap-0 flex-1">
-              {menuItems.map((link, i) => {
-                if (link.col !== 2) return null;
-                const isCurrentPage = i === defaultIndex;
-                const isHovered = hoveredIndex === i && !isCurrentPage;
-                const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
+            <div className="hidden md:flex flex-col flex-1">
+              <nav className="flex flex-col gap-0">
+                {menuItems.map((link, i) => {
+                  if (link.col !== 2) return null;
+                  const isCurrentPage = i === defaultIndex;
+                  const isHovered = hoveredIndex === i && !isCurrentPage;
+                  const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
 
-                return (
-                  <div
-                    key={i}
-                    className="menu-fade-item relative flex items-center py-2 w-max pr-16 md:pr-24"
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  >
+                  return (
+                    <div
+                      key={i}
+                      className="menu-fade-item relative flex items-center py-0.5 sm:py-1 w-max pr-6 md:pr-10 lg:pr-24"
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    >
                     {/* Flèche Framer Motion avec masque de rognage */}
                     <div className="absolute left-0 h-full overflow-hidden flex items-center">
                       <motion.div
@@ -352,7 +386,7 @@ export default function Header({
                         href={link.href}
                         onClick={toggleMenu}
                         onMouseEnter={() => handleMouseEnter(i)}
-                        className={`font-sans text-3xl md:text-4xl lg:text-5xl font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
+                        className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                       >
                         {link.label}
                       </Link>
@@ -360,7 +394,8 @@ export default function Header({
                   </div>
                 );
               })}
-            </nav>
+              </nav>
+            </div>
           </div>
 
           <div className="menu-fade-item mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -369,10 +404,11 @@ export default function Header({
                 Contact
               </div>
               <a
-                href="mailto:contact@franckchapelon.com"
-                className="font-sans text-xs md:text-sm text-black hover:opacity-50 transition-opacity"
+                href={`mailto:${emailAddress}`}
+                className="group relative inline-block font-sans text-xs md:text-sm text-black pb-0.5"
               >
-                contact@franckchapelon.com
+                <span className="relative z-10">{emailAddress}</span>
+                <span className="absolute bottom-0 left-0 h-px w-full bg-black scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
               </a>
             </div>
 
@@ -385,9 +421,10 @@ export default function Header({
                   <a
                     key={i}
                     href="#"
-                    className="font-sans text-xs md:text-sm text-black hover:opacity-50 transition-opacity"
+                    className="group relative inline-block font-sans text-xs md:text-sm text-black pb-0.5"
                   >
-                    {social}
+                    <span className="relative z-10">{social}</span>
+                    <span className="absolute bottom-0 left-0 h-px w-full bg-black scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
                   </a>
                 ))}
               </div>
@@ -397,7 +434,7 @@ export default function Header({
       </div>
 
       <div
-        className={`fixed left-0 w-full z-[300] flex justify-between items-center pointer-events-auto transition-all duration-500 top-0 px-4 md:px-6 lg:px-12 text-white mix-blend-difference backdrop-blur-sm h-16`}
+        className={`fixed left-0 w-full z-[300] flex justify-between items-center pointer-events-auto transition-all duration-500 top-0 px-4 md:px-6 lg:px-12 text-white mix-blend-difference h-16`}
       >
         <div
           className={`flex-1 flex items-center ${isProjectPage ? "" : "header-anim opacity-0 -translate-y-10"}`}
