@@ -353,12 +353,12 @@ export default function ManifestoSection() {
           </div>
 
           <div className="w-full lg:w-2/5 flex justify-center items-center relative h-[400px] md:h-[600px] mt-12 lg:mt-0">
-            <div className="bio-img absolute top-[5%] right-[10%] md:right-[5%] w-48 h-64 md:w-64 md:h-80 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl z-10" style={{ transform: 'translateY(40px)' }}>
-              <Image src={photos[0]} fill alt="Bio 1" className="object-cover" />
+            <div className="bio-img absolute top-[5%] right-[10%] md:right-[5%] w-48 h-64 md:w-64 md:h-80 overflow-hidden shadow-2xl z-10" style={{ transform: 'translateY(40px)' }}>
+              <Image src={photos[0]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 1" className="object-cover" />
             </div>
             
-            <div className="bio-img absolute bottom-[5%] left-[10%] md:left-[5%] w-56 h-72 md:w-72 md:h-[22rem] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl z-20" style={{ transform: 'translateY(100px)' }}>
-              <Image src={photos[1]} fill alt="Bio 2" className="object-cover" />
+            <div className="bio-img absolute bottom-[5%] left-[10%] md:left-[5%] w-56 h-72 md:w-72 md:h-[22rem] overflow-hidden shadow-2xl z-20" style={{ transform: 'translateY(100px)' }}>
+              <Image src={photos[1]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 2" className="object-cover" />
             </div>
           </div>
         </div>
@@ -375,7 +375,7 @@ export default function ManifestoSection() {
         <div className="absolute inset-0 w-full h-full z-10 bg-[#0a0a0a]">
            {/* Image Wrapper starts full screen, then gets clipped */}
            <div className="s0-img-wrapper absolute inset-0 w-full h-full overflow-hidden" style={{ clipPath: "inset(0% 0% 0% 0%)" }}>
-              <Image src={colItems[0].img} fill className="s0-img object-cover" alt="" priority />
+              <Image src={colItems[0].img} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="s0-img object-cover" alt="" />
               <div className="s0-overlay absolute inset-0 bg-black/50" />
            </div>
            {/* Text Wrapper covers full screen, then content is animated to the side */}
@@ -398,7 +398,7 @@ export default function ManifestoSection() {
                </div>
            </div>
            <div className="s1-part-2 absolute bottom-0 right-0 md:top-0 md:right-0 w-full h-1/2 md:w-1/2 md:h-full overflow-hidden bg-black">
-              <Image src={colItems[1].img} fill className="s1-img object-cover opacity-90" alt="" />
+              <Image src={colItems[1].img} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="s1-img object-cover opacity-90" alt="" />
            </div>
         </div>
 
@@ -412,14 +412,14 @@ export default function ManifestoSection() {
                </div>
            </div>
            <div className="s2-part-2 absolute bottom-0 right-0 md:top-0 md:right-0 w-full h-1/2 md:w-1/2 md:h-full overflow-hidden bg-black">
-              <Image src={colItems[2].img} fill className="s2-img object-cover opacity-90" alt="" />
+              <Image src={colItems[2].img} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="s2-img object-cover opacity-90" alt="" />
            </div>
         </div>
 
         {/* SLIDE 3 : Singularité & Impact (Horizontal Wipe) */}
         <div className="slide-3-content s3-wrapper absolute inset-0 w-full h-full z-40 pointer-events-none bg-[#0a0a0a] text-white flex items-center justify-center">
             <div className="absolute inset-0 w-full h-full overflow-hidden opacity-40">
-               <Image src={colItems[3].img} fill className="s3-img object-cover" alt="" />
+               <Image src={colItems[3].img} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="s3-img object-cover" alt="" />
                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
             </div>
             <div className="relative z-10 max-w-4xl text-center p-8">

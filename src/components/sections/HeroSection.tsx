@@ -6,7 +6,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
-import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 const Spline = dynamic(() => import("@splinetool/react-spline"), {
   ssr: false,
@@ -28,6 +29,33 @@ export default function HeroSection() {
   // Refs pour l'effet portal "Cappen"
   const portalRef = useRef<HTMLDivElement>(null);
   const portalImageRef = useRef<HTMLImageElement>(null);
+
+  // Détection adaptive et optimisation de performance GPU
+  const [isDesktop, setIsDesktop] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop, { passive: true });
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { rootMargin: "100px" } // Garde visible juste un peu avant l'entrée/sortie
+    );
+
+    if (container.current) {
+      observer.observe(container.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handlePreloaderComplete = () => {
@@ -203,7 +231,21 @@ export default function HeroSection() {
           ref={portalImageRef}
           className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
         >
-          <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
+          {isDesktop && isVisible ? (
+            <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
+          ) : (
+            <div className="relative w-full h-full">
+              <Image
+                src="/hero_fallback.png"
+                alt="3D abstract glassmorphic sculpture"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover opacity-80"
+              />
+              <div className="absolute inset-0 bg-black/20" />
+            </div>
+          )}
         </div>
       </div>
 

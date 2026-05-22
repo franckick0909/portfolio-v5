@@ -73,7 +73,7 @@ export default function BrandHeader() {
       }
     });
 
-    if (splitSubtitles.chars) {
+    if (splitSubtitles.chars && splitSubtitles.chars.length > 0) {
       tl.from(splitSubtitles.chars, {
         yPercent: 120,
         duration: 0.8,
@@ -82,7 +82,7 @@ export default function BrandHeader() {
       }, 0);
     }
 
-    if (split.lines) {
+    if (split.lines && split.lines.length > 0) {
       tl.from(split.lines, {
         yPercent: 120,
         duration: 1.2,
@@ -98,21 +98,6 @@ export default function BrandHeader() {
         }
       }, 0.2); // Légèrement après les sous-titres
     }
-
-    // 1.b Animation de la flèche (Apparition puis flottement)
-    tl.fromTo(".arrow-container", 
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-      0.4
-    );
-
-    gsap.to(".arrow-svg", {
-      y: 10,
-      duration: 1.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
 
     // 2. L'effet magique avec OBSERVER : 
     // Distorsion élastique du texte en fonction de la vélocité du scroll !

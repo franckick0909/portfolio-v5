@@ -14,6 +14,7 @@ export default function Preloader() {
   const [progress, setProgress] = useState(0);
   const [exitStage, setExitStage] = useState(0);
   const [imagesImploded, setImagesImploded] = useState(false);
+  const [isDestroyed, setIsDestroyed] = useState(false);
 
   const [isDesktop, setIsDesktop] = useState(true);
 
@@ -88,12 +89,15 @@ export default function Preloader() {
         },
         onComplete: () => {
           if (container.current) container.current.style.display = "none";
+          setIsDestroyed(true);
         },
       });
     }
   }, [imagesImploded, progress]);
 
   const strips = Array.from({ length: 7 });
+
+  if (isDestroyed) return null;
 
   return (
     <div

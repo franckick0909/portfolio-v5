@@ -4,8 +4,8 @@ import { useI18n } from "@/lib/i18n";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { motion, type Transition } from "motion/react";
-import Image from "next/image";
 import { Link } from "next-view-transitions";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -26,7 +26,13 @@ const menuItems = [
   { label: "Home", href: "/", img: imgHome, col: 1 },
   { label: "Services", href: "/#services", img: imgServices, col: 1 },
   { label: "À Propos", href: "/#about", img: imgAbout, col: 1 },
-  { label: "Projets", href: "/#works", img: imgHarmonie, col: 1, mobileOnly: true },
+  {
+    label: "Projets",
+    href: "/#works",
+    img: imgHarmonie,
+    col: 1,
+    mobileOnly: true,
+  },
   { label: "Contact", href: "/#footer", img: imgContact, col: 1 },
   // Colonne 2 : Projets
   { label: "Harmonie", href: "/projets/harmonie", img: imgHarmonie, col: 2 },
@@ -43,7 +49,6 @@ const socialLinks = {
 };
 
 const emailAddress = "franckchapelon09@gmail.com";
-
 
 type HeaderProps = {
   projectName?: string;
@@ -66,7 +71,7 @@ export default function Header({
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCurrentHash(window.location.hash);
-      
+
       const handleHashChange = () => {
         setCurrentHash(window.location.hash);
       };
@@ -80,7 +85,10 @@ export default function Header({
   // Index de la page courante (defaultIndex)
   const foundIndex = menuItems.findIndex((m) => {
     if (m.href === "/") {
-      return pathname === "/" && (!currentHash || currentHash === "" || currentHash === "#");
+      return (
+        pathname === "/" &&
+        (!currentHash || currentHash === "" || currentHash === "#")
+      );
     }
     // Pour les ancres (#services etc.)
     if (m.href.startsWith("/#")) {
@@ -163,7 +171,7 @@ export default function Header({
       gsap.fromTo(
         menuOverlayRef.current,
         { clipPath: "inset(0% 0% 100% 0%)" },
-        { clipPath: "inset(0% 0% 0% 0%)", duration: 1.1, ease: "power4.inOut" }
+        { clipPath: "inset(0% 0% 0% 0%)", duration: 1.1, ease: "power4.inOut" },
       );
       gsap.fromTo(
         ".menu-fade-item",
@@ -175,7 +183,7 @@ export default function Header({
           duration: 0.8,
           ease: "power3.out",
           delay: 0.3,
-        }
+        },
       );
     }
   });
@@ -252,8 +260,8 @@ export default function Header({
                   src={link.img}
                   alt={`Menu background ${i}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
-                  priority
                 />
                 <div className="absolute inset-0 bg-black/10" />
               </motion.div>
@@ -263,78 +271,84 @@ export default function Header({
 
         {/* PARTIE DROITE : CONTENU */}
         <div className="w-full md:w-[60%] h-dvh md:h-full flex flex-col justify-start pt-24 pb-12 px-6 md:px-10 lg:px-20 text-[#1A1A1A] overflow-y-auto">
-          <div className="menu-fade-item text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] text-black/50 mb-4 md:mb-12">
-            Découvrir
-          </div>
-
           <div
             className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-16 flex-1"
             onMouseLeave={handleMouseLeaveNav}
           >
             {/* Colonne 1 : Pages Principales */}
-            <nav className="flex flex-col gap-0 flex-1">
-              {menuItems.map((link, i) => {
-                if (link.col !== 1) return null;
-                const isCurrentPage = i === defaultIndex;
-                const isHovered = hoveredIndex === i && !isCurrentPage;
-                const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
+            <div className="flex flex-col flex-1">
+              <div className="menu-fade-item text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] text-black/50 hover:text-black mb-4 md:mb-12 group relative w-max cursor-pointer pb-1 transition-colors duration-300 select-none">
+                Découvrir
+                <span className="absolute bottom-0 left-0 h-px w-full bg-current scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
+              </div>
+              <nav className="flex flex-col gap-0">
+                {menuItems.map((link, i) => {
+                  if (link.col !== 1) return null;
+                  const isCurrentPage = i === defaultIndex;
+                  const isHovered = hoveredIndex === i && !isCurrentPage;
+                  const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
 
-                return (
-                  <div
-                    key={i}
-                    className={`menu-fade-item relative flex items-center py-0.5 sm:py-1 w-max pr-6 md:pr-10 lg:pr-24 ${(link as any).mobileOnly ? "md:hidden" : ""}`}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  >
-                    {/* Flèche Framer Motion avec masque de rognage */}
-                    <div className="absolute left-0 h-full overflow-hidden flex items-center">
+                  return (
+                    <div
+                      key={i}
+                      className={`menu-fade-item relative flex items-center py-0.5 sm:py-1 w-max pr-6 md:pr-10 lg:pr-24 ${(link as any).mobileOnly ? "md:hidden" : ""}`}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    >
+                      {/* Flèche Framer Motion avec masque de rognage */}
+                      <div className="absolute left-0 h-full overflow-hidden flex items-center">
+                        <motion.div
+                          className="flex items-center justify-center text-[#1A1A1A]"
+                          initial={false}
+                          animate={{
+                            x: isHovered ? 0 : "-100%",
+                            y: isHovered ? 0 : "100%",
+                          }}
+                          transition={springConfig}
+                        >
+                          <svg
+                            className="w-[3em] h-[3em]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <line x1="7" y1="17" x2="17" y2="7" />
+                            <polyline points="10 7 17 7 17 14" />
+                          </svg>
+                        </motion.div>
+                      </div>
+
+                      {/* Texte du Lien Framer Motion */}
                       <motion.div
-                        className="flex items-center justify-center text-[#1A1A1A]"
                         initial={false}
                         animate={{
-                          x: isHovered ? 0 : "-100%",
-                          y: isHovered ? 0 : "100%",
+                          x: isHovered ? "4em" : 0,
+                          opacity: isDimmed ? 0.3 : 1,
                         }}
                         transition={springConfig}
+                        className="flex"
                       >
-                        <svg
-                          className="w-[3em] h-[3em]"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
+                        <Link
+                          href={link.href}
+                          onClick={toggleMenu}
+                          onMouseEnter={() => handleMouseEnter(i)}
+                          className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                         >
-                          <line x1="7" y1="17" x2="17" y2="7" />
-                          <polyline points="10 7 17 7 17 14" />
-                        </svg>
+                          {link.label}
+                        </Link>
                       </motion.div>
                     </div>
-
-                    {/* Texte du Lien Framer Motion */}
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        x: isHovered ? "4em" : 0,
-                        opacity: isDimmed ? 0.3 : 1,
-                      }}
-                      transition={springConfig}
-                      className="flex"
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={toggleMenu}
-                        onMouseEnter={() => handleMouseEnter(i)}
-                        className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
-                      >
-                        {link.label}
-                      </Link>
-                    </motion.div>
-                  </div>
-                );
-              })}
-            </nav>
+                  );
+                })}
+              </nav>
+            </div>
 
             {/* Colonne 2 : Projets */}
             <div className="hidden md:flex flex-col flex-1">
+              <div className="menu-fade-item text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] text-black/50 hover:text-black mb-4 md:mb-12 group relative w-max cursor-pointer pb-1 transition-colors duration-300 select-none">
+                Projets
+                <span className="absolute bottom-0 left-0 h-px w-full bg-current scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
+              </div>
               <nav className="flex flex-col gap-0">
                 {menuItems.map((link, i) => {
                   if (link.col !== 2) return null;
@@ -348,52 +362,52 @@ export default function Header({
                       className="menu-fade-item relative flex items-center py-0.5 sm:py-1 w-max pr-6 md:pr-10 lg:pr-24"
                       onMouseLeave={() => setHoveredIndex(null)}
                     >
-                    {/* Flèche Framer Motion avec masque de rognage */}
-                    <div className="absolute left-0 h-full overflow-hidden flex items-center">
+                      {/* Flèche Framer Motion avec masque de rognage */}
+                      <div className="absolute left-0 h-full overflow-hidden flex items-center">
+                        <motion.div
+                          className="flex items-center justify-center text-[#1A1A1A]"
+                          initial={false}
+                          animate={{
+                            x: isHovered ? 0 : "-100%",
+                            y: isHovered ? 0 : "100%",
+                          }}
+                          transition={springConfig}
+                        >
+                          <svg
+                            className="w-[3em] h-[3em]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <line x1="7" y1="17" x2="17" y2="7" />
+                            <polyline points="10 7 17 7 17 14" />
+                          </svg>
+                        </motion.div>
+                      </div>
+
+                      {/* Texte du Lien Framer Motion */}
                       <motion.div
-                        className="flex items-center justify-center text-[#1A1A1A]"
                         initial={false}
                         animate={{
-                          x: isHovered ? 0 : "-100%",
-                          y: isHovered ? 0 : "100%",
+                          x: isHovered ? "4em" : 0,
+                          opacity: isDimmed ? 0.3 : 1,
                         }}
                         transition={springConfig}
+                        className="flex"
                       >
-                        <svg
-                          className="w-[3em] h-[3em]"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
+                        <Link
+                          href={link.href}
+                          onClick={toggleMenu}
+                          onMouseEnter={() => handleMouseEnter(i)}
+                          className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                         >
-                          <line x1="7" y1="17" x2="17" y2="7" />
-                          <polyline points="10 7 17 7 17 14" />
-                        </svg>
+                          {link.label}
+                        </Link>
                       </motion.div>
                     </div>
-
-                    {/* Texte du Lien Framer Motion */}
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        x: isHovered ? "4em" : 0,
-                        opacity: isDimmed ? 0.3 : 1,
-                      }}
-                      transition={springConfig}
-                      className="flex"
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={toggleMenu}
-                        onMouseEnter={() => handleMouseEnter(i)}
-                        className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
-                      >
-                        {link.label}
-                      </Link>
-                    </motion.div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               </nav>
             </div>
           </div>

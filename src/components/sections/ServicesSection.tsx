@@ -1,337 +1,466 @@
 "use client";
 
-import AnimatedTitle from "@/components/AnimatedTitle";
+import { useRef } from "react";
+import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
 import SplitType from "split-type";
 
-import img1 from "../../../public/services/service1.png";
-import img2 from "../../../public/services/service2.png";
-import img3 from "../../../public/services/service3.png";
-import img4 from "../../../public/services/service4.png";
+import s1Bg from "../../../public/services/service1_bg.png";
+import s1Card from "../../../public/services/service1_card.png";
+import s2Bg from "../../../public/services/service2_bg.png";
+import s2Card from "../../../public/services/service2_card.png";
+import s3Bg from "../../../public/services/service3_bg.png";
+import s3Card from "../../../public/services/service3_card.png";
+import s4Bg from "../../../public/services/service4_bg.png";
+import s4Card from "../../../public/services/service4_card.png";
 
 const servicesData = [
   { 
-    title: "Création de site internet sur-mesure", 
-    desc: "Votre site web est la vitrine de votre entreprise. Nous créons des sites internet professionnels entièrement personnalisés et optimisés pour l’expérience utilisateur (UX). Que vous ayez besoin d’un site vitrine, d’un site e-commerce, ou d’une plateforme sur-mesure, notre équipe vous assure un design moderne, responsive et en accord avec vos objectifs. En choisissant Jsemproduction, vous obtenez un site internet unique qui reflète l’image de votre entreprise et attire vos clients.",
-    features: [
-      { name: "Sites vitrines", desc: "Présentez vos services et développez votre présence en ligne." },
-      { name: "Sites e-commerce", desc: "Vendez vos produits avec une plateforme sécurisée et intuitive." },
-      { name: "Développement sur-mesure", desc: "Solutions adaptées à vos besoins spécifiques et à votre secteur d’activité." }
-    ],
-    bg: img4.src,
-    isVideo: false,
-    smallVideo: "/services/service.mp4"
+    title: "Création de site internet",  
+    desc: "Nous concevons des sites internet vitrines et e-commerce sur-mesure, pensés pour maximiser votre impact et garantir une expérience utilisateur exceptionnelle.", 
+    bg: s1Bg.src,
+    cardImg: s1Card.src 
   },
   { 
-    title: "Webdesign UX/UI", 
-    desc: "Le webdesign UX/UI est essentiel pour assurer une expérience utilisateur optimale. Nous concevons des interfaces attrayantes, ergonomiques et intuitives pour maximiser l’engagement de vos visiteurs. Nous allions créativité et expertise technique pour créer des sites web qui se démarquent visuellement tout en restant faciles à utiliser.",
-    features: [
-      { name: "Design responsive", desc: "Votre site s’adapte à tous les écrans (mobiles, tablettes, ordinateurs)." },
-      { name: "Optimisation UX/UI", desc: "Une navigation fluide pour améliorer l’expérience utilisateur et la conversion." },
-      { name: "Création de maquettes", desc: "Nous créons des designs uniques qui reflètent l’identité de votre marque." }
-    ],
-    bg: img1.src,
-    isVideo: false
+    title: "Webdesign UX/UI",             
+    desc: "Un équilibre parfait entre esthétique et utilité. Nous créons des interfaces intuitives et immersives qui reflètent l'ADN de votre marque.",          
+    bg: s2Bg.src,
+    cardImg: s2Card.src 
   },
   { 
-    title: "Référencement SEO", 
-    desc: "Le référencement naturel SEO est une étape cruciale pour améliorer votre visibilité sur les moteurs de recherche. Notre expertise en SEO à Andorre vous permet de positionner votre site en haut des résultats de Google pour les mots-clés les plus pertinents à votre activité. Avec notre approche stratégique, nous optimisons votre contenu, votre structure et vos performances techniques pour garantir un meilleur classement et attirer du trafic qualifié.",
-    features: [
-      { name: "Audit SEO complet", desc: "Analyse de votre site et de vos concurrents." },
-      { name: "Optimisation des mots-clés", desc: "Intégration des termes les plus recherchés pour votre activité." },
-      { name: "SEO technique", desc: "Amélioration de la vitesse de chargement, de l’indexation et de la structure du site." },
-      { name: "SEO local", desc: "Optimisation pour les recherches locales à Andorre et dans vos zones d’activité." }
-    ],
-    bg: img2.src,
-    isVideo: false
+    title: "Référencement SEO",           
+    desc: "Optimisation technique et sémantique pointue pour positionner votre plateforme en tête des résultats de recherche pertinents.",                       
+    bg: s3Bg.src,
+    cardImg: s3Card.src 
   },
   { 
-    title: "Design Visuel & Branding", 
-    desc: "En plus de nos services principaux de développement web, nous proposons une gamme complète de services créatifs pour donner vie à votre marque et la faire briller sur tous les supports.",
-    features: [
-      { name: "Création de logos", desc: "Un logo sur-mesure qui reflète l’essence de votre entreprise." },
-      { name: "Refonte de site internet", desc: "Modernisez votre site existant pour le rendre plus performant et attractif." },
-      { name: "Supports imprimés", desc: "Création de cartes de visite, flyers et catalogues professionnels." },
-      { name: "Vidéographie & Photo", desc: "Mettez en avant vos produits ou événements avec des visuels de haute qualité." }
-    ],
-    bg: img3.src,
-    isVideo: false
-  }
+    title: "Design Visuel & Branding",    
+    desc: "Création de logos, d'identités visuelles et de supports graphiques professionnels pour faire briller votre entreprise sur tous les canaux.",         
+    bg: s4Bg.src,
+    cardImg: s4Card.src 
+  },
 ];
+
+const N = servicesData.length;
+const BG_SLICES = 48;
+const sliceOverlap = 0.0; // Overlap de 0.3% pour masquer les jointures/fissures de sous-pixels
+
+// Bandes vénitiennes égales et très fines
+const sliceData = (() => {
+  const h = 100 / BG_SLICES;
+  return Array.from({ length: BG_SLICES }, (_, i) => {
+    const t = i * h;
+    return { top: t, height: h, bottom: 100 - (t + h) };
+  });
+})();
 
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const pinContainerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      gsap.registerPlugin(ScrollTrigger);
+  useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
 
-      // --- Title Rule Animation ---
-      const titleRule = document.querySelector(".services-title-rule");
+    // ─── Découpage des textes avec SplitType et enveloppement avec overflow-hidden ───
+    const splitInstances: SplitType[] = [];
 
-      if (titleRule) {
-        gsap.fromTo(
-          titleRule,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.5,
-            ease: "expo.out",
-            scrollTrigger: {
-              trigger: titleRule,
-              start: "top 85%",
-              toggleActions: "play none none none",
-            },
+    servicesData.forEach((_, idx) => {
+      const titleEl = sectionRef.current?.querySelector(`.service-title-${idx}`);
+      const descEl = sectionRef.current?.querySelector(`.service-desc-${idx}`);
+
+      if (titleEl) {
+        // Clear any existing wrappers from previous hot reloads
+        titleEl.querySelectorAll(".line-wrapper").forEach(wrap => {
+          const parent = wrap.parentNode;
+          while (wrap.firstChild) {
+            parent?.insertBefore(wrap.firstChild, wrap);
+          }
+          wrap.remove();
+        });
+
+        const splitTitle = new SplitType(titleEl as HTMLElement, { types: "lines", lineClass: "split-line" });
+        splitTitle.lines?.forEach(line => {
+          const wrap = document.createElement("div");
+          wrap.className = "line-wrapper overflow-hidden block";
+          line.parentNode?.insertBefore(wrap, line);
+          wrap.appendChild(line);
+        });
+        splitInstances.push(splitTitle);
+      }
+
+      if (descEl) {
+        // Clear any existing wrappers from previous hot reloads
+        descEl.querySelectorAll(".line-wrapper").forEach(wrap => {
+          const parent = wrap.parentNode;
+          while (wrap.firstChild) {
+            parent?.insertBefore(wrap.firstChild, wrap);
+          }
+          wrap.remove();
+        });
+
+        const splitDesc = new SplitType(descEl as HTMLElement, { types: "lines", lineClass: "split-line" });
+        splitDesc.lines?.forEach(line => {
+          const wrap = document.createElement("div");
+          wrap.className = "line-wrapper overflow-hidden block";
+          line.parentNode?.insertBefore(wrap, line);
+          wrap.appendChild(line);
+        });
+        splitInstances.push(splitDesc);
+      }
+    });
+
+    // Configuration initiale : cacher les textes des slides non actifs
+    for (let idx = 1; idx < N; idx++) {
+      gsap.set(
+        [`.service-title-${idx} .split-line`, `.service-desc-${idx} .split-line`],
+        { yPercent: 100 }
+      );
+    }
+
+    // ─── Effet Cursor Magnétique/Flottant Premium pour le Bouton "Discover More" ───
+    const imageContainer = sectionRef.current?.querySelector(".image-container-wrapper");
+    const button = sectionRef.current?.querySelector(".magnetic-button");
+
+    let onMouseMove: (e: MouseEvent) => void;
+    let onMouseEnter: () => void;
+    let onMouseLeave: () => void;
+
+    if (imageContainer && button) {
+      // Masquer initialement le bouton flottant (scale: 0)
+      gsap.set(button, { scale: 0, opacity: 0, xPercent: -50, yPercent: -50 });
+
+      const xTo = gsap.quickTo(button, "x", { duration: 0.45, ease: "power3.out" });
+      const yTo = gsap.quickTo(button, "y", { duration: 0.45, ease: "power3.out" });
+
+      onMouseEnter = () => {
+        gsap.to(button, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.5)" });
+      };
+
+      onMouseMove = (e: MouseEvent) => {
+        const rect = imageContainer.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        xTo(mouseX);
+        yTo(mouseY);
+      };
+
+      onMouseLeave = () => {
+        gsap.to(button, { scale: 0, opacity: 0, duration: 0.3, ease: "power2.in" });
+      };
+
+      imageContainer.addEventListener("mouseenter", onMouseEnter as EventListener);
+      imageContainer.addEventListener("mousemove", onMouseMove as EventListener);
+      imageContainer.addEventListener("mouseleave", onMouseLeave as EventListener);
+    }
+
+    // ─── Animations adaptatives selon l'écran avec gsap.matchMedia ───
+    const mm = gsap.matchMedia();
+
+    mm.add({
+      isDesktop: "(min-width: 768px)",
+      isMobile: "(max-width: 767px)"
+    }, (context) => {
+      const { isDesktop } = context.conditions as { isDesktop: boolean };
+
+      // ─── Une transition scrubée par slide (immédiate et réactive) ───
+      for (let i = 1; i < N; i++) {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: `.service-trigger-${i}`,
+            start: "top top",      // Démarre immédiatement dès que le trigger commence à défiler
+            end:   "bottom top",   // Finit quand le trigger a défilé de 100vh
+            scrub: 0.15,           // Scrub ultra réactif (0.15s) pour éliminer tout temps d'attente
           },
+        });
+
+        if (isDesktop) {
+          // A ── Activer la couche découpée (slices) au début de la transition
+          tl.fromTo(`.bg-layer-${i}`, { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0);
+
+          // B ── Effet de Scale sur les images de fond au scroll (s'effacent = scale down, arrivent = scale up à 100%)
+          // L'image sortante solide (i - 1) se réduit doucement de 1.0 à 0.95
+          tl.fromTo(
+            `.bg-solid-${i - 1} img`,
+            { scale: 1.0 },
+            { scale: 0.95, duration: 0.8, ease: "power2.inOut" },
+            0.0
+          );
+
+          // Les images entrantes coupées (i) s'agrandissent doucement de 0.95 à 1.0
+          tl.fromTo(
+            `.bg-layer-${i} .bg-slice img`,
+            { scale: 0.95 },
+            { scale: 1.0, duration: 0.8, ease: "power2.inOut" },
+            0.0
+          );
+
+          // 1 ── Ouverture des lames de fond du store vénitien (48 bandes fines)
+          for (let j = 0; j < BG_SLICES; j++) {
+            const pos = (j / BG_SLICES) * 0.45; // Cascade fluide légèrement compressée dans la timeline
+            tl.fromTo(
+              `.bg-layer-${i} .bg-slice:nth-child(${j + 1})`,
+              { clipPath: `inset(${sliceData[j].top}% 0 ${100 - sliceData[j].top}% 0)` },
+              { clipPath: `inset(${sliceData[j].top}% 0 ${sliceData[j].bottom - sliceOverlap}% 0)`, ease: "none" },
+              pos
+            );
+          }
+
+          // C ── À la fin de la transition : afficher le fond solide correspondant (sans traits ni lames)
+          // et masquer le calque découpé pour éliminer tout bug de sous-pixels au repos
+          tl.set(`.bg-solid-${i}`, { opacity: 1 }, 0.8);
+          tl.set(`.bg-layer-${i}`, { opacity: 0 }, 0.8);
+        }
+
+        // 2 ── Dévoilement par clip-path + glissement/parallaxe synchronisé des images de la carte
+        // Image sortante (i - 1) glisse doucement vers le haut
+        tl.fromTo(
+          `.card-image-layer-${i - 1} img`,
+          { yPercent: 0 },
+          { yPercent: -15, duration: 0.8, ease: "power2.inOut" },
+          0.0
+        );
+
+        // Image entrante (i) se dévoile par clip-path tout en glissant vers le haut
+        tl.fromTo(
+          `.card-image-layer-${i}`,
+          { clipPath: "inset(100% 0 0 0)" },
+          { clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power2.inOut" },
+          0.0
+        );
+
+        tl.fromTo(
+          `.card-image-layer-${i} img`,
+          { yPercent: 15 },
+          { yPercent: 0, duration: 0.8, ease: "power2.inOut" },
+          0.0
+        );
+
+        // 3 ── Disparition synchronisée vers le haut des textes du slide précédent (i - 1)
+        tl.to(
+          [`.card-header-${i - 1}`, `.card-desc-${i - 1}`],
+          { opacity: 0, duration: 0.25, pointerEvents: "none" },
+          0.0
+        );
+        
+        tl.fromTo(
+          [`.service-title-${i - 1} .split-line`, `.service-desc-${i - 1} .split-line`],
+          { yPercent: 0 },
+          { yPercent: -100, duration: 0.65, stagger: 0.05, ease: "power2.inOut" },
+          0.0
+        );
+
+        // 4 ── Apparition synchronisée depuis le bas des textes du slide actuel (i)
+        tl.to(
+          [`.card-header-${i}`, `.card-desc-${i}`],
+          { opacity: 1, duration: 0.3, pointerEvents: "auto" },
+          0.15
+        );
+
+        tl.fromTo(
+          [`.service-title-${i} .split-line`, `.service-desc-${i} .split-line`],
+          { yPercent: 100 },
+          { yPercent: 0, duration: 0.75, stagger: 0.08, ease: "power2.out" },
+          0.15
         );
       }
+    });
 
-      // --- Slider Animation ---
-      const sections = gsap.utils.toArray(".service-section") as HTMLElement[];
-      const images = gsap.utils.toArray(".bg") as HTMLElement[];
-      const headings = gsap.utils.toArray(".section-heading") as HTMLElement[];
-      const descriptions = gsap.utils.toArray(".section-desc") as HTMLElement[];
-      const outers = gsap.utils.toArray(".outer") as HTMLElement[];
-      const inners = gsap.utils.toArray(".inner") as HTMLElement[];
-
-      // Safety check
-      if (sections.length < 2) return;
-
-      // Split text setup
-      const splitHeadings = headings.map(
-        (h) =>
-          new SplitType(h, {
-            types: "words,lines",
-            lineClass: "clip-text overflow-hidden pb-2",
-          }),
-      );
-
-      // Set initial states
-      gsap.set(outers, { yPercent: 100 });
-      gsap.set(inners, { yPercent: -100 });
-      gsap.set(descriptions, { autoAlpha: 0, y: 30 });
-      gsap.set(".feature-item", { autoAlpha: 0, y: 30 });
-      gsap.set(".section-button", { autoAlpha: 0, y: 20 });
-      gsap.set(".small-video", { autoAlpha: 0, scale: 0.9, y: 30 });
-
-      // First slide is visible initially
-      gsap.set(outers[0], { yPercent: 0 });
-      gsap.set(inners[0], { yPercent: 0 });
-      gsap.set(images[0], { yPercent: 0 });
-      gsap.set(descriptions[0], { autoAlpha: 1, y: 0 });
-      if (splitHeadings[0]?.words) {
-        gsap.set(splitHeadings[0].words, { autoAlpha: 1, yPercent: 0 });
+    return () => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+      splitInstances.forEach(inst => inst.revert());
+      mm.revert();
+      if (imageContainer) {
+        if (onMouseEnter) imageContainer.removeEventListener("mouseenter", onMouseEnter as EventListener);
+        if (onMouseMove) imageContainer.removeEventListener("mousemove", onMouseMove as EventListener);
+        if (onMouseLeave) imageContainer.removeEventListener("mouseleave", onMouseLeave as EventListener);
       }
-      const firstSlideFeatures = sections[0].querySelectorAll(".feature-item");
-      const firstSlideBtn = sections[0].querySelector(".section-button");
-      const firstSlideVideo = sections[0].querySelector(".small-video");
-      if (firstSlideFeatures.length) gsap.set(firstSlideFeatures, { autoAlpha: 1, y: 0 });
-      if (firstSlideBtn) gsap.set(firstSlideBtn, { autoAlpha: 1, y: 0 });
-      if (firstSlideVideo) gsap.set(firstSlideVideo, { autoAlpha: 1, scale: 1, y: 0 });
-
-      // Create the master scrubbed timeline for pinning
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: pinContainerRef.current,
-          start: "top top",
-          end: `+=${sections.length * 100}%`, // Pins the section for 400% of screen height
-          pin: true,
-          scrub: 1, // Smooth scrub effect
-          snap: {
-            snapTo: 1 / (sections.length - 1), // Snaps magnetically to each slide
-            duration: { min: 0.3, max: 0.8 },
-            ease: "power1.inOut",
-          },
-        },
-      });
-
-      sections.forEach((sec, i) => {
-        if (i === 0) return;
-
-        const prevIndex = i - 1;
-        const tlStep = gsap.timeline();
-
-        // Animate previous background out (parallax)
-        tlStep.to(images[prevIndex], { yPercent: -15, ease: "none" }, 0);
-
-        // Animate current in (curtain reveal)
-        tlStep
-          .fromTo(
-            outers[i],
-            { yPercent: 100 },
-            { yPercent: 0, ease: "none" },
-            0,
-          )
-          .fromTo(
-            inners[i],
-            { yPercent: -100 },
-            { yPercent: 0, ease: "none" },
-            0,
-          )
-          .fromTo(
-            images[i],
-            { yPercent: 15 },
-            { yPercent: 0, ease: "none" },
-            0,
-          );
-
-        // Stagger words in
-        if (splitHeadings[i] && splitHeadings[i].words) {
-          tlStep.fromTo(
-            splitHeadings[i].words,
-            { autoAlpha: 0, yPercent: 150 },
-            {
-              autoAlpha: 1,
-              yPercent: 0,
-              ease: "power3.out",
-              stagger: 0.02,
-            },
-            0.2,
-          );
-        }
-
-        // Animate description in
-        if (descriptions[i]) {
-          tlStep.fromTo(descriptions[i],
-            { autoAlpha: 0, y: 30 },
-            { autoAlpha: 1, y: 0, duration: 1, ease: "power3.out" },
-            0.5
-          );
-        }
-
-        const slideFeatures = sec.querySelectorAll(".feature-item");
-        const slideBtn = sec.querySelector(".section-button");
-        const slideVideo = sec.querySelector(".small-video");
-
-        if (slideVideo) {
-          tlStep.fromTo(slideVideo,
-            { autoAlpha: 0, scale: 0.9, y: 30 },
-            { autoAlpha: 1, scale: 1, y: 0, duration: 1, ease: "power3.out" },
-            0.5
-          );
-        }
-
-        if (slideFeatures.length) {
-          tlStep.fromTo(slideFeatures,
-            { autoAlpha: 0, y: 30 },
-            { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: 0.1 },
-            0.6
-          );
-        }
-        if (slideBtn) {
-          tlStep.fromTo(slideBtn,
-            { autoAlpha: 0, y: 20 },
-            { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" },
-            0.8
-          );
-        }
-
-        tl.add(tlStep);
-      });
-
-      return () => {
-        splitHeadings.forEach((s) => s.revert());
-      };
-    },
-    { scope: sectionRef, dependencies: [] },
-  );
+    };
+  }, { scope: sectionRef });
 
   return (
-    <section
-      ref={sectionRef}
-      id="services"
-      className="w-full bg-background text-foreground relative z-40"
-    >
-      {/* Animated Title (Aligned to right) */}
-      <div className="relative w-full flex justify-end py-12 md:py-24 px-6 md:px-16 z-30">
-        <div className="flex flex-col items-end w-full max-w-max">
-          <AnimatedTitle
-            text="NOS SERVICES"
-            sizeClass="text-[clamp(3.5rem,10vw,12rem)]"
-            className="font-mona text-foreground leading-none tracking-tight uppercase text-right"
-            trigger="scroll"
-          />
-          <div className="services-title-rule w-full h-[2px] md:h-1 opacity-80 origin-right bg-foreground" />
-        </div>
-      </div>
+    <section ref={sectionRef} id="services" className="relative w-full bg-background text-foreground z-40">
 
-      {/* Pinned Fullscreen Slider */}
-      <div
-        ref={pinContainerRef}
-        className="relative w-full h-screen overflow-hidden"
-      >
-        {servicesData.map((s, i) => (
-          <section
-            className="service-section absolute inset-0 w-full h-full overflow-hidden"
-            key={i}
-          >
-            <div className="outer w-full h-full overflow-hidden">
-              <div className="inner w-full h-full overflow-hidden relative">
-                <div className="bg absolute w-full h-[130%] top-[-15%] left-0">
-                  {/* Background Media */}
-                  {s.isVideo ? (
-                    <video src={s.bg} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full" style={{ backgroundImage: `url(${s.bg})`, backgroundSize: "cover", backgroundPosition: "center" }} />
-                  )}
-                  
-                  {/* Dark Overlay for text readability */}
-                  <div className="absolute inset-0 bg-black/60 md:bg-black/40" />
+      {/* Hauteur totale = N * 100 vh */}
+      <div className="relative w-full" style={{ height: `${N * 100}vh` }}>
 
-                  {/* Content Container */}
-                  <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 w-full max-w-7xl mx-auto">
-                      
-                      {/* Left Column: Title & Desc */}
-                      <div className="flex-1 flex flex-col justify-center">
-                        <div className="overflow-hidden z-10 mb-6">
-                          <h2 className="section-heading text-[clamp(2.5rem,4vw,6rem)] font-serif font-semibold leading-[1.1] m-0 text-[hsl(0,0%,95%)] tracking-tight">
-                            {s.title}
-                          </h2>
-                        </div>
-                        <div className="overflow-hidden z-10">
-                          <p className="section-desc text-[clamp(0.95rem,1.1vw,1.2rem)] text-[hsl(0,0%,85%)] leading-relaxed font-sans max-w-2xl">
-                            {s.desc}
-                          </p>
-                        </div>
-                        <div className="mt-8 section-button">
-                          <button className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition-colors uppercase text-xs tracking-widest cursor-pointer">
-                            En savoir plus
-                          </button>
-                        </div>
-                      </div>
+        {/* STICKY — Ecran fixé */}
+        <div className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-[#151515] md:bg-transparent">
 
-                      {/* Right Column: Features List */}
-                      <div className="flex-1 flex flex-col justify-center gap-6 pt-10 lg:pt-0">
-                        
-                        {/* Optional Small Video */}
-                        {s.smallVideo && (
-                          <div className="small-video w-full md:w-4/5 lg:w-3/4 aspect-video rounded-2xl overflow-hidden shadow-2xl mb-4 border border-white/10 relative">
-                            <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none" />
-                            <video src={s.smallVideo} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                          </div>
-                        )}
+          {/* Fonds (Solid layers + Sliced transition layers) - Masqués sur mobile et tablette */}
+          <div className="hidden md:block absolute inset-0" style={{ zIndex: 1 }}>
+            {/* 1. Solid Background Layers (Seamless) */}
+            {servicesData.map((s, idx) => (
+              <div
+                key={`solid-${idx}`}
+                className={`bg-solid bg-solid-${idx} absolute inset-0 overflow-hidden`}
+                style={{
+                  zIndex: idx * 2 + 1, // Start zIndex at 1 instead of 0 to avoid being hidden behind parent background
+                  opacity: idx === 0 ? 1 : 0,
+                }}
+              >
+                <Image
+                  src={s.bg}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover origin-center"
+                />
+                <div className="absolute inset-0 bg-black/60" />
+              </div>
+            ))}
 
-                        {s.features.map((feature, fIndex) => (
-                          <div key={fIndex} className="feature-item overflow-hidden">
-                            <h3 className="text-xl md:text-2xl font-serif text-white mb-2">{feature.name}</h3>
-                            <p className="text-sm md:text-base text-white/70 font-sans leading-relaxed">{feature.desc}</p>
-                            <div className="w-full h-px bg-white/20 mt-6" />
-                          </div>
-                        ))}
-                      </div>
-
+            {/* 2. Sliced Transition Layers (Venetian Blinds) */}
+            {servicesData.map((s, idx) => {
+              if (idx === 0) return null; // Slide 0 doesn't need an incoming transition sliced layer
+              return (
+                <div
+                  key={`sliced-${idx}`}
+                  className={`bg-layer bg-layer-${idx} absolute inset-0 overflow-hidden opacity-0`}
+                  style={{
+                    zIndex: idx * 2, // Sits exactly between solid-(idx-1) and solid-idx
+                  }}
+                >
+                  {sliceData.map((slice, i) => (
+                    <div
+                      key={i}
+                      className="bg-slice absolute inset-0 overflow-hidden"
+                      style={{
+                        clipPath: `inset(${slice.top}% 0 ${100 - slice.top}% 0)`,
+                      }}
+                    >
+                      <Image
+                        src={s.bg}
+                        alt=""
+                        fill
+                        className="object-cover origin-center"
+                      />
+                      <div className="absolute inset-0 bg-black/60" />
                     </div>
-                  </div>
+                  ))}
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Textes latéraux */}
+          <div className="hidden md:flex absolute inset-0 px-12 lg:px-16 justify-between items-center z-10 text-white pointer-events-none mix-blend-difference">
+            <h2 className="font-bebas text-5xl tracking-widest uppercase">Nos Services</h2>
+            <span className="font-sans text-sm tracking-widest opacity-80">( Keep Scrolling )</span>
+          </div>
+
+          {/* Carte centrale */}
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none px-4">
+            <div
+              className="relative w-full md:w-[55%] max-w-[620px] bg-[#d1ccbf] text-[#1E2320] shadow-2xl  pointer-events-auto overflow-hidden flex flex-col justify-between p-8 md:p-12"
+              style={{ height: '88vh' }}
+            >
+              {/* 1. Conteneur des en-têtes fixes */}
+              <div className="relative w-full h-[100px] md:h-[130px] flex-shrink-0">
+                {servicesData.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className={`card-header card-header-${idx} absolute inset-x-0 top-0 flex flex-col items-center text-center gap-2 md:gap-4`}
+                    style={{
+                      zIndex: idx + 1,
+                      opacity: idx === 0 ? 1 : 0,
+                      pointerEvents: idx === 0 ? "auto" : "none",
+                    }}
+                  >
+                    <span className="font-sans text-sm md:text-base uppercase tracking-widest opacity-50 font-normal">
+                      0{idx + 1} — 0{N}
+                    </span>
+                    <h3 className={`service-title service-title-${idx} font-sans text-3xl md:text-4xl lg:text-[40px] leading-[1.1] tracking-tight font-light text-center`}>
+                      {s.title}
+                    </h3>
+                  </div>
+                ))}
+              </div>
+
+              {/* 2. Conteneur d'image avec effet clip-path et curseur magnétique/flottant */}
+              <div
+                className="image-container-wrapper relative w-full aspect-video overflow-hidden my-4 md:my-6 select-none cursor-none"
+                style={{ aspectRatio: "16/11", minHeight: 0 }}
+              >
+                
+                {/* Bouton "Discover More" flottant / Curseur magnétique personnalisé */}
+                <div
+                  className="magnetic-button absolute top-0 left-0 z-30 pointer-events-none flex items-center justify-center"
+                  style={{ transform: "translate(-50%, -50%)" }}
+                >
+                  <span className="px-6 py-3 rounded-full bg-white/05 border border-white/20 text-[#1E2320] font-sans text-xs uppercase tracking-widest font-semibold shadow-[0_12px_40px_0_rgba(0,0,0,0.25)] flex items-center gap-2 backdrop-blur-md whitespace-nowrap">
+                    Discover More <span className="inline-block text-sm">
+                      <svg
+                          className="w-[2em] h-[2em]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <line x1="7" y1="17" x2="17" y2="7" />
+                          <polyline points="10 7 17 7 17 14" />
+                        </svg>
+                    </span>
+                  </span>
+                </div>
+
+                {/* Images de chaque service */}
+                {servicesData.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className={`card-image-layer card-image-layer-${idx} absolute inset-0 overflow-hidden`}
+                    style={{
+                      zIndex: idx,
+                      clipPath: idx === 0 ? "inset(0% 0 0 0)" : "inset(100% 0 0 0)",
+                    }}
+                  >
+                    <Image
+                      src={s.cardImg}
+                      alt={s.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover scale-105"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* 3. Conteneur des descriptions fixes */}
+              <div className="relative w-full h-[70px] md:h-[90px] flex-shrink-0 flex items-center justify-center">
+                {servicesData.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className={`card-desc card-desc-${idx} absolute inset-x-0 bottom-0 flex items-center justify-center text-center`}
+                    style={{
+                      zIndex: idx + 1,
+                      opacity: idx === 0 ? 1 : 0,
+                      pointerEvents: idx === 0 ? "auto" : "none",
+                    }}
+                  >
+                    <p className={`service-desc service-desc-${idx} font-sans text-sm md:text-base leading-relaxed opacity-80 max-w-[85%] text-center font-light`}>
+                      {s.desc}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
-        ))}
+          </div>
+
+        </div>{/* fin sticky */}
+
+        {/* ZONES DE TRIGGER INVISIBLES */}
+        <div className="absolute top-0 left-0 w-full pointer-events-none flex flex-col" style={{ height: `${N * 100}vh` }}>
+          {Array.from({ length: N - 1 }).map((_, idx) => (
+            <div
+              key={idx}
+              className={`service-trigger service-trigger-${idx + 1} w-full`}
+              style={{ height: '100vh', flexShrink: 0 }}
+            />
+          ))}
+          {/* Buffer 100 vh silencieux à la fin pour voir pleinement la dernière slide */}
+          <div style={{ height: '100vh', flexShrink: 0 }} />
+        </div>
+
       </div>
     </section>
   );
