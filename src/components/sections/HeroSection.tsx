@@ -33,11 +33,18 @@ export default function HeroSection() {
   // Détection adaptive et optimisation de performance GPU
   const [loadSpline, setLoadSpline] = useState(false);
   const [resizeKey, setResizeKey] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Debounced resize handler to recreate the ScrollTrigger with perfect coordinates
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkDesktop();
+
     const handleResize = () => {
+      checkDesktop();
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         setResizeKey((prev) => prev + 1);
@@ -239,7 +246,19 @@ export default function HeroSection() {
           className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
         >
           {loadSpline && (
-            <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
+            isDesktop ? (
+              <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
+            ) : (
+              <video
+                src="/hero.mp4"
+                poster="/hero_fallback.png"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover opacity-80"
+              />
+            )
           )}
         </div>
       </div>
