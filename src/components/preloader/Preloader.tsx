@@ -1,6 +1,7 @@
 "use client";
 import gsap from "gsap";
 import dynamic from "next/dynamic";
+import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import PreloaderImages from "./PreloaderImages";
 
@@ -8,6 +9,8 @@ const PreloaderCanvas = dynamic(() => import("./PreloaderCanvas"), {
   ssr: false,
   loading: () => null,
 });
+
+const BG_SLICES = 32;
 
 export default function Preloader() {
   const container = useRef<HTMLDivElement>(null);
@@ -21,6 +24,19 @@ export default function Preloader() {
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024);
   }, []);
+
+  useGSAP(() => {
+    const numBlinds = BG_SLICES;
+    let pts = [];
+    const H = 100 / numBlinds;
+    const overlap = 0.2;
+    for (let i = 0; i < numBlinds; i++) {
+      const y1 = i * H;
+      const y2 = y1 + H + overlap;
+      pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
+    }
+    gsap.set("#preloader-bg-overlay", { clipPath: `polygon(${pts.join(", ")})` });
+  }, { scope: container });
 
   // 1. Gestion du compteur
   useEffect(() => {
@@ -78,11 +94,29 @@ export default function Preloader() {
   // 4. RÉVÉLATION FINALE : Ne se déclenche QUE si imagesImploded est vrai (et qu'on a fini le compteur)
   useEffect(() => {
     if (imagesImploded && progress >= 100 && container.current) {
-      gsap.to(".preloader-strip", {
-        yPercent: 100,
+      const numBlinds = BG_SLICES;
+      const blindObjs = Array.from({ length: numBlinds }, () => ({ val: 0 }));
+      const overlap = 0.2;
+
+      const updateClipPath = () => {
+        let pts = [];
+        const H = 100 / numBlinds;
+        for (let i = 0; i < numBlinds; i++) {
+          const y1 = i * H;
+          // shrink the slice to y1 (top)
+          const y2 = y1 + ((100 - blindObjs[i].val) / 100) * (H + overlap);
+          pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
+        }
+        const el = document.getElementById("preloader-bg-overlay");
+        if (el) el.style.clipPath = `polygon(${pts.join(", ")})`;
+      };
+
+      gsap.to(blindObjs, {
+        val: 100,
         duration: 0.8,
         ease: "expo.inOut",
-        stagger: { amount: 0.3, from: "edges" },
+        stagger: 0.02,
+        onUpdate: updateClipPath,
         onStart: () => {
           // On prévient le Hero et les autres que c'est le moment de se révéler
           window.dispatchEvent(new CustomEvent("preloaderComplete"));
@@ -95,8 +129,6 @@ export default function Preloader() {
     }
   }, [imagesImploded, progress]);
 
-  const strips = Array.from({ length: 7 });
-
   if (isDestroyed) return null;
 
   return (
@@ -104,11 +136,10 @@ export default function Preloader() {
       ref={container}
       className="fixed inset-0 z-[108] flex items-center justify-center overflow-hidden"
     >
-      <div className="absolute inset-0 z-0 flex">
-        {strips.map((_, i) => (
-          <div key={i} className="preloader-strip flex-1 h-full mix-blend-difference bg-[#050505]" />
-        ))}
-      </div>
+      <div
+        id="preloader-bg-overlay"
+        className="absolute inset-0 z-0 w-full h-full mix-blend-difference bg-[#050505]"
+      />
 
       <div className="absolute inset-0 z-10 pointer-events-none">
         <PreloaderImages />

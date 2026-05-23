@@ -78,7 +78,46 @@ export default function Header({
       window.addEventListener("hashchange", handleHashChange);
       return () => window.removeEventListener("hashchange", handleHashChange);
     }
-  }, [isOpen, pathname]);
+  }, [pathname]);
+
+  // Intersection Observer for scroll-based active state detection on homepage
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const sections = ["hero", "services", "about", "works", "footer"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -50% 0px", // Detect active section in the top-middle part of the viewport
+      threshold: 0,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          if (id === "hero") {
+            setCurrentHash("");
+          } else {
+            setCurrentHash("#" + id);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => {
+      sections.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) observer.unobserve(element);
+      });
+    };
+  }, [pathname]);
 
   const isProjectPage = pathname?.startsWith("/projets/");
 
@@ -109,6 +148,7 @@ export default function Header({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const prevIndexRef = useRef<number>(defaultIndex);
+  const blindObjsRef = useRef(Array.from({ length: 32 }, () => ({ val: 0 })));
 
   useEffect(() => {
     prevIndexRef.current = activeIndex;
@@ -153,40 +193,145 @@ export default function Header({
 
   useGSAP(
     () => {
-      gsap.set(menuOverlayRef.current, { clipPath: "inset(0% 0% 100% 0%)" });
+      const numBlinds = 32;
+      let pts = [];
+      const H = 100 / numBlinds;
+      for (let i = 0; i < numBlinds; i++) {
+        const y1 = i * H;
+        pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y1}%`, `0% ${y1}%`);
+      }
+      gsap.set(menuOverlayRef.current, { clipPath: `polygon(${pts.join(", ")})` });
     },
     { scope: containerRef },
   );
 
   const toggleMenu = contextSafe(() => {
+    const numBlinds = 32;
+    const overlap = 0.2;
+    const updateClipPath = () => {
+      let pts = [];
+      const H = 100 / numBlinds;
+      for (let i = 0; i < numBlinds; i++) {
+        const y1 = i * H;
+        const y2 = y1 + (blindObjsRef.current[i].val / 100) * (H + overlap);
+        pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
+      }
+      if (menuOverlayRef.current) {
+        menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
+      }
+    };
+
     if (isOpen) {
       setIsOpen(false);
-      gsap.to(menuOverlayRef.current, {
-        clipPath: "inset(0% 0% 100% 0%)",
-        duration: 0.85,
+      gsap.to(blindObjsRef.current, {
+        val: 0,
+        duration: 0.6,
         ease: "power3.inOut",
+        stagger: 0.015,
+        onUpdate: updateClipPath,
       });
     } else {
       setIsOpen(true);
-      gsap.fromTo(
-        menuOverlayRef.current,
-        { clipPath: "inset(0% 0% 100% 0%)" },
-        { clipPath: "inset(0% 0% 0% 0%)", duration: 1.1, ease: "power4.inOut" },
-      );
+      gsap.to(blindObjsRef.current, {
+        val: 100,
+        duration: 0.7,
+        ease: "power3.inOut",
+        stagger: 0.015,
+        onUpdate: updateClipPath,
+      });
       gsap.fromTo(
         ".menu-fade-item",
         { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          stagger: 0.05,
+          stagger: 0.04,
           duration: 0.8,
           ease: "power3.out",
-          delay: 0.3,
+          delay: 0.2,
         },
       );
     }
   });
+
+  const handleLinkClick = contextSafe((e: React.MouseEvent, href: string) => {
+    const isAnchor = href.startsWith("/#") || href.startsWith("#") || href === "/";
+    const targetHash = href.includes("#") ? href.split("#")[1] : "";
+
+    if (isAnchor && pathname === "/") {
+      // Navigation sur la même page : fermeture avec lames vénitiennes + scroll fluide
+      e.preventDefault();
+      setIsOpen(false);
+
+      const numBlinds = 32;
+      const overlap = 0.2;
+      const updateClipPath = () => {
+        let pts = [];
+        const H = 100 / numBlinds;
+        for (let i = 0; i < numBlinds; i++) {
+          const y1 = i * H;
+          const y2 = y1 + (blindObjsRef.current[i].val / 100) * (H + overlap);
+          pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
+        }
+        if (menuOverlayRef.current) {
+          menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
+        }
+      };
+
+      gsap.to(blindObjsRef.current, {
+        val: 0,
+        duration: 1.0,
+        ease: "expo.inOut",
+        stagger: 0.02,
+        onUpdate: updateClipPath,
+      });
+
+      // Positionnement instantané du scroll sous le menu opaque
+      if (targetHash) {
+        const element = document.getElementById(targetHash);
+        if (element) {
+          element.scrollIntoView({ behavior: "auto" });
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }
+
+      window.history.pushState(null, "", href);
+      setCurrentHash(targetHash ? "#" + targetHash : "");
+    } else {
+      // Navigation vers une autre page : fermeture instantanée pour laisser faire la View Transition zoom
+      setIsOpen(false);
+      // Réinitialisation instantanée du clip-path à fermé
+      const numBlinds = 32;
+      let pts = [];
+      const H = 100 / numBlinds;
+      for (let i = 0; i < numBlinds; i++) {
+        const y1 = i * H;
+        pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y1}%`, `0% ${y1}%`);
+      }
+      if (menuOverlayRef.current) {
+        menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
+      }
+      blindObjsRef.current.forEach((b) => (b.val = 0));
+    }
+  });
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      if (isOpen) {
+        handleLinkClick(e, "/");
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.pushState(null, "", "/");
+        setCurrentHash("");
+      }
+    } else {
+      if (isOpen) {
+        handleLinkClick(e, "/");
+      }
+    }
+  };
 
   useGSAP(
     () => {
@@ -228,7 +373,6 @@ export default function Header({
       {/* MENU OVERLAY */}
       <div
         ref={menuOverlayRef}
-        style={{ clipPath: "inset(0% 0% 100% 0%)" }}
         className={`fixed inset-0 w-full h-dvh bg-background z-[250] flex flex-col md:flex-row ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         {/* PARTIE GAUCHE : IMAGES AVEC ANIMATEPRESENCE POUR FLUIDITÉ MAXIMALE */}
@@ -330,7 +474,7 @@ export default function Header({
                       >
                         <Link
                           href={link.href}
-                          onClick={toggleMenu}
+                          onClick={(e) => handleLinkClick(e, link.href)}
                           onMouseEnter={() => handleMouseEnter(i)}
                           className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                         >
@@ -398,7 +542,7 @@ export default function Header({
                       >
                         <Link
                           href={link.href}
-                          onClick={toggleMenu}
+                          onClick={(e) => handleLinkClick(e, link.href)}
                           onMouseEnter={() => handleMouseEnter(i)}
                           className={`font-sans text-[clamp(1.75rem,3.5vw,3.5rem)] leading-[1.1] font-light tracking-tight ${isCurrentPage ? "underline decoration-1 underline-offset-4" : ""}`}
                         >
@@ -455,9 +599,7 @@ export default function Header({
         >
           <Link
             href="/"
-            onClick={() => {
-              if (isOpen) toggleMenu();
-            }}
+            onClick={handleLogoClick}
             className="group flex font-serif font-medium text-xl md:text-3xl leading-none tracking-wider"
           >
             <div className="flex items-end">

@@ -23,6 +23,7 @@ import ManifestoSection from "@/components/sections/ManifestoSection";
 import AboutHeader from "@/components/sections/AboutHeader";
 import WorkHeader from "@/components/sections/WorkHeader";
 import FaqHeader from "@/components/sections/FaqHeader";
+import ServicesHeader from "@/components/sections/ServicesHeader";
 
 export default function Home() {
   const mainRef = useRef<HTMLElement>(null);
@@ -68,6 +69,7 @@ export default function Home() {
         <BrandSection />
         <AboutHeader />
         <ManifestoSection />
+        <ServicesHeader />
         <ServicesSection />
         <FaqHeader />
         <FaqSection />
