@@ -19,7 +19,7 @@ export default function Preloader() {
   const [imagesImploded, setImagesImploded] = useState(false);
   const [isDestroyed, setIsDestroyed] = useState(false);
 
-  const [isDesktop, setIsDesktop] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024);
@@ -134,7 +134,7 @@ export default function Preloader() {
   return (
     <div
       ref={container}
-      className="fixed inset-0 z-[108] flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[500] flex items-center justify-center overflow-hidden"
     >
       <div
         id="preloader-bg-overlay"

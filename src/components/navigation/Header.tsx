@@ -381,6 +381,8 @@ export default function Header({
             const isActive = activeIndex === i;
             const isPrev = prevIndexRef.current === i;
 
+            if (!isActive && !isPrev) return null;
+
             return (
               <motion.div
                 key={i}

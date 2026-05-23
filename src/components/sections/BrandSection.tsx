@@ -38,13 +38,15 @@ export default function BrandSection() {
         pin: true,
         scrub: true, // Lie l'animation au scroll
         onUpdate: (self) => {
-          // Déclencheur physique
-          if (self.progress > 0.7 && !isPhysicsActiveRef.current) {
-            isPhysicsActiveRef.current = true;
-            setIsPhysicsActive(true);
-          } else if (self.progress < 0.65 && isPhysicsActiveRef.current) {
-            isPhysicsActiveRef.current = false;
-            setIsPhysicsActive(false);
+          // Déclencheur physique - Uniquement sur Desktop !
+          if (window.innerWidth >= 1024) {
+            if (self.progress > 0.7 && !isPhysicsActiveRef.current) {
+              isPhysicsActiveRef.current = true;
+              setIsPhysicsActive(true);
+            } else if (self.progress < 0.65 && isPhysicsActiveRef.current) {
+              isPhysicsActiveRef.current = false;
+              setIsPhysicsActive(false);
+            }
           }
         }
       }

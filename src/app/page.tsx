@@ -29,7 +29,7 @@ export default function Home() {
   const mainRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [cursorReady, setCursorReady] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Header + Navigation: caché pendant le preloader, révélé au preloaderComplete
   useEffect(() => {

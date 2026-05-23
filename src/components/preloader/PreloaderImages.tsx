@@ -174,7 +174,7 @@ export default function PreloaderImages() {
     <div ref={root} className="pointer-events-none fixed inset-0 z-10 overflow-visible">
       {PRELOADER_IMAGE_URL.map((src, i) => (
         <Image
-          priority
+          priority={i === 0}
           key={`${src}-${i}`}
           src={src}
           alt="Preloader Image"

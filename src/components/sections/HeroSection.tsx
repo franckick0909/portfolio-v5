@@ -31,30 +31,23 @@ export default function HeroSection() {
   const portalImageRef = useRef<HTMLImageElement>(null);
 
   // Détection adaptive et optimisation de performance GPU
-  const [isDesktop, setIsDesktop] = useState(true);
-  const [isVisible, setIsVisible] = useState(true);
+  const [loadSpline, setLoadSpline] = useState(false);
+  const [resizeKey, setResizeKey] = useState(0);
 
+  // Debounced resize handler to recreate the ScrollTrigger with perfect coordinates
   useEffect(() => {
-    const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= 1024);
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setResizeKey((prev) => prev + 1);
+      }, 150);
     };
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop, { passive: true });
-    return () => window.removeEventListener("resize", checkDesktop);
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { rootMargin: "100px" } // Garde visible juste un peu avant l'entrée/sortie
-    );
-
-    if (container.current) {
-      observer.observe(container.current);
-    }
-    return () => observer.disconnect();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -71,9 +64,23 @@ export default function HeroSection() {
           delay: 0.6,
         },
       );
+
+      // Delay loading Spline to keep the preloader exit buttery-smooth
+      setTimeout(() => {
+        setLoadSpline(true);
+      }, 400);
     };
 
     window.addEventListener("preloaderComplete", handlePreloaderComplete);
+
+    // Fallback if the page hot-reloads and the preloader is already gone
+    const isHotReload =
+      document.readyState === "complete" &&
+      !document.querySelector(".preloader-canvas");
+    if (isHotReload) {
+      setLoadSpline(true);
+    }
+
     return () => {
       window.removeEventListener("preloaderComplete", handlePreloaderComplete);
     };
@@ -214,7 +221,7 @@ export default function HeroSection() {
         0,
       );
     },
-    { scope: container },
+    { dependencies: [resizeKey], scope: container },
   );
 
   return (
@@ -231,20 +238,8 @@ export default function HeroSection() {
           ref={portalImageRef}
           className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
         >
-          {isDesktop && isVisible ? (
+          {loadSpline && (
             <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
-          ) : (
-            <div className="relative w-full h-full">
-              <Image
-                src="/hero_fallback.png"
-                alt="3D abstract glassmorphic sculpture"
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover opacity-80"
-              />
-              <div className="absolute inset-0 bg-black/20" />
-            </div>
           )}
         </div>
       </div>
