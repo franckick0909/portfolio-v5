@@ -250,8 +250,8 @@ export default function HeroSection() {
               <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
             ) : (
               <video
-                src="/hero.mp4"
-                poster="/hero_fallback.png"
+                src="/chips.webm"
+                poster="/chips.png"
                 autoPlay
                 loop
                 muted
