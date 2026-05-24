@@ -33,7 +33,7 @@ const menuItems = [
     col: 1,
     mobileOnly: true,
   },
-  { label: "Contact", href: "/#footer", img: imgContact, col: 1 },
+  { label: "Contact", href: "/contact", img: imgContact, col: 1 },
   // Colonne 2 : Projets
   { label: "Harmonie", href: "/projets/harmonie", img: imgHarmonie, col: 2 },
   { label: "Imo", href: "/projets/imo", img: imgImo, col: 2 },

@@ -106,38 +106,67 @@ export default function ManifestoSection() {
 
       // 2. SCRUB TEXT BIO (Révélation mot par mot)
       const scrubText = new SplitType(".scrub-text", { types: "words" } as any);
-      gsap.fromTo(
-        scrubText.words,
-        { opacity: 0.05 },
-        {
-          opacity: 1,
-          stagger: 0.05,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".scrub-container",
-            start: "top 70%",
-            end: "bottom 50%",
-            scrub: true,
-          },
-        }
-      );
+      const isMobileText = window.innerWidth < 768;
 
-      // 3. PARALLAX & SCALE DES IMAGES BIO FLOTTANTES (Inspiré du Preloader)
-      gsap.utils.toArray(".bio-img").forEach((img: any, idx: number) => {
-        // Apparition avec un scale au milieu de l'image
-        gsap.from(img, {
-          scale: 0,
-          opacity: 0,
-          duration: 1.5,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".scrub-container",
-            start: "top 60%",
-            toggleActions: "play none none reverse",
+      if (isMobileText) {
+        // Révélation automatique rapide et agréable au scroll sur mobile (pas de scrub)
+        gsap.fromTo(
+          scrubText.words,
+          { opacity: 0.2, y: 10 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.012,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".scrub-container",
+              start: "top 55%",
+              toggleActions: "play none none reverse",
+            },
           }
-        });
+        );
+      } else {
+        // Scrubbing standard sur ordinateur
+        gsap.fromTo(
+          scrubText.words,
+          { opacity: 0.05 },
+          {
+            opacity: 1,
+            stagger: 0.05,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".scrub-container",
+              start: "top 70%",
+              end: "bottom 50%",
+              scrub: true,
+            },
+          }
+        );
+      }
 
-        // Parallax continu
+      // 3. PARALLAX & SCALE DES IMAGES BIO FLOTTANTES
+      gsap.utils.toArray(".bio-img").forEach((img: any, idx: number) => {
+        // Révélation d'apparition sur l'image interne (évite tout conflit de transform avec le parallax externe)
+        const innerImg = img.querySelector("img");
+        if (innerImg) {
+          gsap.fromTo(innerImg, {
+            scale: 0,
+            opacity: 0
+          }, {
+            scale: 1,
+            opacity: 1,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".scrub-container",
+              start: "top 55%",
+              toggleActions: "play none none reverse",
+            }
+          });
+        }
+
+        // Parallax continu sur le conteneur externe (.bio-img)
         gsap.to(img, {
           yPercent: idx === 0 ? -40 : -80,
           ease: "none",
@@ -353,11 +382,11 @@ export default function ManifestoSection() {
           </div>
 
           <div className="w-full lg:w-2/5 flex justify-center items-center relative h-[400px] md:h-[600px] mt-12 lg:mt-0">
-            <div className="bio-img absolute top-[5%] right-[10%] md:right-[5%] w-48 h-64 md:w-64 md:h-80 overflow-hidden shadow-2xl z-10" style={{ transform: 'translateY(40px)' }}>
+            <div className="bio-img absolute top-[5%] right-[2%] w-[130px] h-[170px] sm:w-48 sm:h-64 md:right-[5%] md:w-64 md:h-80 overflow-hidden shadow-2xl z-10" style={{ transform: 'translateY(40px)' }}>
               <Image src={photos[0]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 1" className="object-cover" />
             </div>
             
-            <div className="bio-img absolute bottom-[5%] left-[10%] md:left-[5%] w-56 h-72 md:w-72 md:h-[22rem] overflow-hidden shadow-2xl z-20" style={{ transform: 'translateY(100px)' }}>
+            <div className="bio-img absolute bottom-[5%] left-[2%] w-[150px] h-[205px] sm:w-56 sm:h-72 md:left-[5%] md:w-72 md:h-[22rem] overflow-hidden shadow-2xl z-20" style={{ transform: 'translateY(100px)' }}>
               <Image src={photos[1]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 2" className="object-cover" />
             </div>
           </div>
