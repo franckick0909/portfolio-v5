@@ -387,7 +387,7 @@ export default function Header({
               <motion.div
                 key={i}
                 className="absolute inset-0 w-full h-full origin-center"
-                initial={false}
+                initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                 animate={{
                   clipPath:
                     isActive || isPrev
