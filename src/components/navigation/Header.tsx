@@ -4,7 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { motion, type Transition } from "motion/react";
-import { Link } from "next-view-transitions";
+import { Link, useTransitionRouter } from "next-view-transitions";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -65,6 +65,7 @@ export default function Header({
   const menuOverlayRef = useRef<HTMLDivElement>(null);
   const { locale, toggleLocale } = useI18n();
   const pathname = usePathname();
+  const router = useTransitionRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [currentHash, setCurrentHash] = useState("");
 
@@ -255,28 +256,29 @@ export default function Header({
   });
 
   const handleLinkClick = contextSafe((e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+
     const isAnchor = href.startsWith("/#") || href.startsWith("#") || href === "/";
     const targetHash = href.includes("#") ? href.split("#")[1] : "";
 
+    const numBlinds = 32;
+    const overlap = 0.2;
+    const updateClipPath = () => {
+      let pts = [];
+      const H = 100 / numBlinds;
+      for (let i = 0; i < numBlinds; i++) {
+        const y1 = i * H;
+        const y2 = y1 + (blindObjsRef.current[i].val / 100) * (H + overlap);
+        pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
+      }
+      if (menuOverlayRef.current) {
+        menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
+      }
+    };
+
     if (isAnchor && pathname === "/") {
       // Navigation sur la même page : fermeture avec lames vénitiennes + scroll fluide
-      e.preventDefault();
       setIsOpen(false);
-
-      const numBlinds = 32;
-      const overlap = 0.2;
-      const updateClipPath = () => {
-        let pts = [];
-        const H = 100 / numBlinds;
-        for (let i = 0; i < numBlinds; i++) {
-          const y1 = i * H;
-          const y2 = y1 + (blindObjsRef.current[i].val / 100) * (H + overlap);
-          pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y2}%`, `0% ${y2}%`);
-        }
-        if (menuOverlayRef.current) {
-          menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
-        }
-      };
 
       gsap.to(blindObjsRef.current, {
         val: 0,
@@ -299,20 +301,20 @@ export default function Header({
       window.history.pushState(null, "", href);
       setCurrentHash(targetHash ? "#" + targetHash : "");
     } else {
-      // Navigation vers une autre page : fermeture instantanée pour laisser faire la View Transition zoom
-      setIsOpen(false);
-      // Réinitialisation instantanée du clip-path à fermé
-      const numBlinds = 32;
-      let pts = [];
-      const H = 100 / numBlinds;
-      for (let i = 0; i < numBlinds; i++) {
-        const y1 = i * H;
-        pts.push(`0% ${y1}%`, `100% ${y1}%`, `100% ${y1}%`, `0% ${y1}%`);
-      }
-      if (menuOverlayRef.current) {
-        menuOverlayRef.current.style.clipPath = `polygon(${pts.join(", ")})`;
-      }
-      blindObjsRef.current.forEach((b) => (b.val = 0));
+      // Navigation vers une autre page (ex: /contact ou retour home depuis /contact)
+      // On ferme le menu de manière fluide d'abord pour éviter toute disparition abrupte,
+      // puis on lance la navigation une fois les lames fermées.
+      gsap.to(blindObjsRef.current, {
+        val: 0,
+        duration: 0.6,
+        ease: "power3.inOut",
+        stagger: 0.012,
+        onUpdate: updateClipPath,
+        onComplete: () => {
+          setIsOpen(false);
+          router.push(href);
+        },
+      });
     }
   });
 

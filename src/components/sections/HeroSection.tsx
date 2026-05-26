@@ -95,6 +95,8 @@ export default function HeroSection() {
 
   useGSAP(
     () => {
+      if (!isDesktop) return;
+
       gsap.registerPlugin(ScrollTrigger);
 
       const vw = window.innerWidth;
@@ -106,15 +108,10 @@ export default function HeroSection() {
 
       let initialScale = 0.25;
 
-      // Le conteneur Spline est forcé à 200vw sur mobile pour garder un ratio paysage
-      // Le secret pour empêcher le Spline d'être trop gros sur mobile :
-      // On force le canvas à avoir un ratio PAYSAGE (w = 1.5 * h), même sur un écran portrait !
-      // Ainsi, la caméra Spline ne zoome jamais.
-      const canvasW = vw < 1024 ? vh * 1.5 : vw;
+      const canvasW = vw;
       const canvasH = vh;
 
-      const activeSlot =
-        vw < 1024 ? slotMobileRef.current : slotDesktopRef.current;
+      const activeSlot = slotDesktopRef.current;
 
       if (activeSlot) {
         // Obtenir la position EXACTE du trou par rapport au viewport
@@ -136,17 +133,17 @@ export default function HeroSection() {
         diffX = slotCenterX - vw / 2;
         diffY = slotCenterY - vh / 2;
 
-        // Calcul dynamique du scale initial par rapport à la taille FORCÉE du canvas
+        // Calcul dynamique du scale initial par rapport à la taille du canvas
         const scaleX = rect.width / canvasW;
         const scaleY = rect.height / canvasH;
 
         // Multiplicateur ajusté pour laisser une belle marge noire autour du Chips
-        const multiplier = vw < 1024 ? 1.05 : 1.2;
+        const multiplier = 1.2;
         initialScale = Math.max(scaleX, scaleY) * multiplier;
       } else {
         // Fallback
-        const boxH = vw < 768 ? 60 : 100;
-        const boxW = vw < 768 ? 100 : 180;
+        const boxH = 100;
+        const boxW = 180;
         startClip = `inset(${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px ${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px round 4px)`;
         initialScale = (boxW / canvasW) * 1.5;
       }
@@ -190,7 +187,6 @@ export default function HeroSection() {
       );
 
       // 2. Scale-up de la scène Spline
-      // Utilisation de power3.in : reste petit longtemps, puis s'agrandit d'un coup à la fin
       scrollTl.to(
         portalImageRef.current,
         {
@@ -228,40 +224,29 @@ export default function HeroSection() {
         0,
       );
     },
-    { dependencies: [resizeKey], scope: container },
+    { dependencies: [resizeKey, isDesktop], scope: container },
   );
 
   return (
     <>
       {/* ══════════════ FOND CAPPEN (PORTAL) ══════════════ */}
       {/* Sorti de la section pour ne pas être impacté par overflow-hidden ou le pin spacer */}
-      <div
-        ref={portalRef}
-        className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground"
-        style={{ zIndex: 30 }}
-      >
-        {/* Spline 3D Scene - Ratio Paysage forcé sur mobile (150vh) pour reculer la caméra */}
+      {isDesktop && (
         <div
-          ref={portalImageRef}
-          className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
+          ref={portalRef}
+          className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden bg-foreground"
+          style={{ zIndex: 30 }}
         >
-          {loadSpline && (
-            isDesktop ? (
+          <div
+            ref={portalImageRef}
+            className="absolute top-1/2 left-1/2 w-[100vw] h-[100vh] pointer-events-auto"
+          >
+            {loadSpline && (
               <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
-            ) : (
-              <video
-                src="/chips.webm"
-                poster="/chips.png"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover opacity-80"
-              />
-            )
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <section
         id="hero"
@@ -383,8 +368,20 @@ export default function HeroSection() {
               {/* Slot Mobile — Paysage, ~60% width */}
               <div
                 ref={slotMobileRef}
-                className="w-[90vw] h-[50vw] md:w-[55vw] md:h-[35vw] mt-20 md:mt-4 bg-foreground rounded-sm flex-shrink-0 mx-auto"
-              />
+                className="w-[90vw] h-[50vw] md:w-[55vw] md:h-[35vw] mt-20 md:mt-4 bg-foreground rounded-sm flex-shrink-0 mx-auto overflow-hidden relative"
+              >
+                {!isDesktop && loadSpline && (
+                  <video
+                    src="/chips.webm"
+                    poster="/chips.png"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover opacity-80"
+                  />
+                )}
+              </div>
             </div>
           </div>
 
