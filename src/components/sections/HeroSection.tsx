@@ -75,6 +75,21 @@ export default function HeroSection() {
       setTimeout(() => {
         setLoadSpline(true);
       }, 400);
+
+      // Force recalculating the slot positions as the preloader exits and the layout reflows/scrollbars settle
+      setResizeKey((prev) => prev + 1);
+
+      setTimeout(() => {
+        setResizeKey((prev) => prev + 1);
+      }, 150);
+
+      setTimeout(() => {
+        setResizeKey((prev) => prev + 1);
+      }, 500);
+
+      setTimeout(() => {
+        setResizeKey((prev) => prev + 1);
+      }, 1000);
     };
 
     window.addEventListener("preloaderComplete", handlePreloaderComplete);
@@ -85,6 +100,9 @@ export default function HeroSection() {
       !document.querySelector(".preloader-canvas");
     if (isHotReload) {
       setLoadSpline(true);
+      setTimeout(() => {
+        setResizeKey((prev) => prev + 1);
+      }, 100);
     }
 
     return () => {
@@ -264,7 +282,7 @@ export default function HeroSection() {
       <section
         id="hero"
         ref={container}
-        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-tranoadrent text-foreground overflow-hidden md:overflow-visible"
+        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-transparent text-foreground overflow-hidden md:overflow-visible"
       >
         <SectionWrapper className="relative z-30 w-full h-full flex flex-col items-center justify-center">
           <div
