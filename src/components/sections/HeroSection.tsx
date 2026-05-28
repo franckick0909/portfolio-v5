@@ -6,7 +6,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const Spline = dynamic(() => import("@splinetool/react-spline"), {
@@ -243,30 +242,29 @@ export default function HeroSection() {
         {/* Spline 3D Scene - Ratio Paysage forcé sur mobile (150vh) pour reculer la caméra */}
         <div
           ref={portalImageRef}
-          className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto"
+          className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto mix-blend-screen"
         >
-          {loadSpline && (
-            isDesktop ? (
+          {loadSpline &&
+            (isDesktop ? (
               <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
             ) : (
               <video
-                src="/hero.mp4"
-                poster="/hero_fallback.png"
+                src="/chips.mp4"
+                poster="/hero.png"
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover opacity-80"
+                className="w-full h-full object-cover"
               />
-            )
-          )}
+            ))}
         </div>
       </div>
 
       <section
         id="hero"
         ref={container}
-        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-transparent text-foreground overflow-hidden md:overflow-visible"
+        className="h-screen w-full relative z-0 flex flex-col items-center justify-center bg-tranoadrent text-foreground overflow-hidden md:overflow-visible"
       >
         <SectionWrapper className="relative z-30 w-full h-full flex flex-col items-center justify-center">
           <div
@@ -383,7 +381,7 @@ export default function HeroSection() {
               {/* Slot Mobile — Paysage, ~60% width */}
               <div
                 ref={slotMobileRef}
-                className="w-[90vw] h-[50vw] md:w-[55vw] md:h-[35vw] mt-20 md:mt-4 bg-foreground rounded-sm flex-shrink-0 mx-auto"
+                className="w-[90vw] h-[50vw] md:w-[55vw] md:h-[35vw] mt-20 md:mt-4 border border-foreground/10 bg-transparent rounded-sm flex-shrink-0 mx-auto"
               />
             </div>
           </div>

@@ -114,9 +114,9 @@ export default function ManifestoSection() {
           stagger: 0.05,
           ease: "none",
           scrollTrigger: {
-            trigger: ".scrub-container",
-            start: "top 70%",
-            end: "bottom 50%",
+            trigger: ".scrub-text",
+            start: "top 85%",
+            end: "bottom 65%",
             scrub: true,
           },
         }
@@ -131,19 +131,19 @@ export default function ManifestoSection() {
           duration: 1.5,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: ".scrub-container",
-            start: "top 60%",
+            trigger: ".bio-images-wrapper",
+            start: "top 85%",
             toggleActions: "play none none reverse",
           }
         });
 
         // Parallax continu
         gsap.to(img, {
-          yPercent: idx === 0 ? -40 : -80,
+          yPercent: idx === 0 ? -20 : -45,
           ease: "none",
           force3D: true, // Accélération matérielle
           scrollTrigger: {
-            trigger: ".scrub-container",
+            trigger: ".bio-images-wrapper",
             start: "top bottom",
             end: "bottom top",
             scrub: true,
@@ -352,12 +352,12 @@ export default function ManifestoSection() {
             </p>
           </div>
 
-          <div className="w-full lg:w-2/5 flex justify-center items-center relative h-[400px] md:h-[600px] mt-12 lg:mt-0">
-            <div className="bio-img absolute top-[5%] right-[10%] md:right-[5%] w-48 h-64 md:w-64 md:h-80 overflow-hidden shadow-2xl z-10" style={{ transform: 'translateY(40px)' }}>
+          <div className="bio-images-wrapper w-full lg:w-2/5 flex justify-center items-center relative h-[400px] md:h-[600px] mt-12 lg:mt-0">
+            <div className="bio-img absolute top-[8%] right-[8%] w-36 h-48 md:w-64 md:h-80 overflow-hidden shadow-2xl z-10">
               <Image src={photos[0]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 1" className="object-cover" />
             </div>
             
-            <div className="bio-img absolute bottom-[5%] left-[10%] md:left-[5%] w-56 h-72 md:w-72 md:h-[22rem] overflow-hidden shadow-2xl z-20" style={{ transform: 'translateY(100px)' }}>
+            <div className="bio-img absolute bottom-[8%] left-[8%] w-40 h-52 md:w-72 md:h-[22rem] overflow-hidden shadow-2xl z-20">
               <Image src={photos[1]} fill  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="Bio 2" className="object-cover" />
             </div>
           </div>

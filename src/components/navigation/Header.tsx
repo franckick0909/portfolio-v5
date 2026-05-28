@@ -10,12 +10,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 // Importations des images
-import imgHome from "../../../public/services/service1.png";
-import imgServices from "../../../public/services/service2.png";
-import imgAbout from "../../../public/services/service3.png";
-import imgContact from "../../../public/services/service4.png";
+import imgHome from "../../../public/services/service3_bg.png";
+import imgServices from "../../../public/header/services.jpg";
+import imgAbout from "../../../public/header/about.jpg";
+import imgContact from "../../../public/header/contact.jpg";
 
-import imgHarmonie from "../../../public/projets/harmonie/harmonie1.jpg";
+import imgHarmonie from "../../../public/header/projets.jpg";
 import imgImo from "../../../public/projets/imo/imo1.jpg";
 import imgMovie from "../../../public/projets/movie/movie1.jpg";
 import imgSophie from "../../../public/projets/sophie/sophie1.png";
@@ -31,9 +31,8 @@ const menuItems = [
     href: "/#works",
     img: imgHarmonie,
     col: 1,
-    mobileOnly: true,
   },
-  { label: "Contact", href: "/#footer", img: imgContact, col: 1 },
+  { label: "Contact", href: "/contact", img: imgContact, col: 1 },
   // Colonne 2 : Projets
   { label: "Harmonie", href: "/projets/harmonie", img: imgHarmonie, col: 2 },
   { label: "Imo", href: "/projets/imo", img: imgImo, col: 2 },
@@ -387,7 +386,7 @@ export default function Header({
               <motion.div
                 key={i}
                 className="absolute inset-0 w-full h-full origin-center"
-                initial={false}
+                initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                 animate={{
                   clipPath:
                     isActive || isPrev
@@ -427,7 +426,7 @@ export default function Header({
                 Découvrir
                 <span className="absolute bottom-0 left-0 h-px w-full bg-current scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
               </div>
-              <nav className="flex flex-col gap-0">
+              <nav className="flex flex-col gap-4 sm:gap-2 md:gap-1">
                 {menuItems.map((link, i) => {
                   if (link.col !== 1) return null;
                   const isCurrentPage = i === defaultIndex;
@@ -495,7 +494,7 @@ export default function Header({
                 Projets
                 <span className="absolute bottom-0 left-0 h-px w-full bg-current scale-x-0 origin-right transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:origin-left" />
               </div>
-              <nav className="flex flex-col gap-0">
+              <nav className="flex flex-col gap-1">
                 {menuItems.map((link, i) => {
                   if (link.col !== 2) return null;
                   const isCurrentPage = i === defaultIndex;
