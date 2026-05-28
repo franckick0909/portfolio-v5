@@ -1,4 +1,5 @@
 import ContactPage from "./ContactPage";
+import { I18nProvider } from "@/lib/i18n";
 
 export const metadata = {
   title: "Contact | Franck Chapelon",
@@ -6,5 +7,10 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <ContactPage />;
+  return (
+    <I18nProvider>
+      <ContactPage />
+    </I18nProvider>
+  );
 }
+

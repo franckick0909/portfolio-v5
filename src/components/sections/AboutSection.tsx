@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Link } from "next-view-transitions";
 import { useRef } from "react";
 import { useI18n } from "@/lib/i18n";
 import SplitType from "split-type";
@@ -194,13 +195,13 @@ export default function AboutSection() {
           Créons quelque chose ensemble
         </h2>
         
-        <a 
-          href="#footer" 
+        <Link 
+          href="/contact" 
           className="inline-flex items-center gap-4 px-10 py-5 bg-foreground text-background font-sans font-bold uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-accent hover:text-white transition-all duration-300 shadow-xl"
         >
           Je suis prêt
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </a>
+        </Link>
       </div>
     </section>
   );
