@@ -37,7 +37,9 @@ export default function Home() {
     
     const handlePreloaderComplete = () => {
       // Mount cursor only after preloader exits (avoids competing for GPU)
-      setCursorReady(true);
+      setTimeout(() => {
+        setCursorReady(true);
+      }, 1500);
     };
 
     window.addEventListener("preloaderComplete", handlePreloaderComplete);

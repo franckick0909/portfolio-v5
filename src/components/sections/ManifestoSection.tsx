@@ -139,6 +139,9 @@ export default function ManifestoSection() {
 
       // 2. SCRUB TEXT BIO (Révélation mot par mot)
       const scrubText = new SplitType(".scrub-text", { types: "words" } as any);
+      if (scrubText.words) {
+        gsap.set(scrubText.words, { willChange: "opacity" });
+      }
       gsap.fromTo(
         scrubText.words,
         { opacity: 0.05 },
@@ -156,6 +159,7 @@ export default function ManifestoSection() {
       );
 
       // 3. PARALLAX & SCALE DES IMAGES BIO FLOTTANTES (Inspiré du Preloader)
+      gsap.set(".bio-img", { willChange: "transform, opacity" });
       gsap.utils.toArray(".bio-img").forEach((img: any, idx: number) => {
         // Apparition avec un scale au milieu de l'image
         gsap.from(img, {
@@ -196,6 +200,7 @@ export default function ManifestoSection() {
       const wrapElements = (elems: HTMLElement[], isInline = false) => {
         elems.forEach((el) => {
           const wrapper = document.createElement("div");
+          wrapper.className = "split-wrapper";
           wrapper.style.overflow = "hidden";
           wrapper.style.display = isInline ? "inline-block" : "block";
           wrapper.style.paddingBottom = "0.2em";
@@ -226,6 +231,7 @@ export default function ManifestoSection() {
       // Cacher tous les textes initialement
       gsap.set([splitSubtitles.chars, splitTitles.lines, splitDescs.lines], {
         yPercent: 120,
+        willChange: "transform",
       });
 
       // Slide 0 anime indépendamment à l'entrée
@@ -506,7 +512,9 @@ export default function ManifestoSection() {
           outroQuote as HTMLElement,
           { types: "lines, words" } as any,
         );
-        gsap.set(outroSplit.words, { transformPerspective: 1000 });
+        if (outroSplit.words) {
+          gsap.set(outroSplit.words, { transformPerspective: 1000, willChange: "transform, opacity" });
+        }
 
         gsap.fromTo(
           outroSplit.words,
@@ -551,6 +559,17 @@ export default function ManifestoSection() {
         if (splitDescs) splitDescs.revert();
         if (outroSplit) outroSplit.revert();
         mm.revert();
+
+        // Nettoyer les wrappers manuels pour éviter les duplications lors des rechargements à chaud
+        document.querySelectorAll(".split-wrapper").forEach((wrapper) => {
+          const parent = wrapper.parentNode;
+          if (parent) {
+            while (wrapper.firstChild) {
+              parent.insertBefore(wrapper.firstChild, wrapper);
+            }
+            parent.removeChild(wrapper);
+          }
+        });
       };
     },
     { scope: container },
@@ -594,7 +613,7 @@ export default function ManifestoSection() {
               <Image
                 src={photos[0]}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 144px, 256px"
                 alt="Bio 1"
                 className="object-cover"
               />
@@ -604,7 +623,7 @@ export default function ManifestoSection() {
               <Image
                 src={photos[1]}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 160px, 288px"
                 alt="Bio 2"
                 className="object-cover"
               />
@@ -630,7 +649,7 @@ export default function ManifestoSection() {
             <Image
               src={colItems[0].img}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, 100vw"
               className="s0-img object-cover"
               alt=""
             />
@@ -671,7 +690,7 @@ export default function ManifestoSection() {
             <Image
               src={colItems[1].img}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="s1-img object-cover opacity-90"
               alt=""
             />
@@ -697,7 +716,7 @@ export default function ManifestoSection() {
             <Image
               src={colItems[2].img}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="s2-img object-cover opacity-90"
               alt=""
             />
@@ -710,7 +729,7 @@ export default function ManifestoSection() {
             <Image
               src={colItems[3].img}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, 100vw"
               className="s3-img object-cover"
               alt=""
             />
@@ -742,7 +761,7 @@ export default function ManifestoSection() {
             loop
             muted
             playsInline
-            className="w-full h-full object-cover mix-blend-screen"
+            className="w-full h-full object-cover"
           />
         </div>
 
@@ -750,7 +769,7 @@ export default function ManifestoSection() {
         <div className="absolute inset-0 bg-black/60 z-10" />
 
         {/* Citation */}
-        <blockquote className="relative z-20 max-w-6xl text-center px-6 md:px-12 flex flex-col items-center mix-blend-screen">
+        <blockquote className="relative z-20 max-w-6xl text-center px-6 md:px-12 flex flex-col items-center">
           <span className="text-white/40 font-sans text-xs tracking-[0.4em] uppercase mb-8">
             03 // L'Ambition
           </span>

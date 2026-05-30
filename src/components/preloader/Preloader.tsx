@@ -18,11 +18,23 @@ export default function Preloader() {
   const [exitStage, setExitStage] = useState(0);
   const [imagesImploded, setImagesImploded] = useState(false);
   const [isDestroyed, setIsDestroyed] = useState(false);
+  const [hasRun, setHasRun] = useState(false);
 
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024);
+
+    if (typeof window !== "undefined") {
+      const isDone = sessionStorage.getItem("portfolio-preloader-done");
+      if (isDone === "true") {
+        setIsDestroyed(true);
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("preloaderComplete"));
+        }, 50);
+      }
+      setHasRun(true);
+    }
   }, []);
 
   useGSAP(() => {
@@ -122,6 +134,9 @@ export default function Preloader() {
           window.dispatchEvent(new CustomEvent("preloaderComplete"));
         },
         onComplete: () => {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("portfolio-preloader-done", "true");
+          }
           if (container.current) container.current.style.display = "none";
           setIsDestroyed(true);
         },
@@ -135,10 +150,12 @@ export default function Preloader() {
     <div
       ref={container}
       className="fixed inset-0 z-[500] flex items-center justify-center overflow-hidden"
+      style={{ opacity: hasRun ? 1 : 0 }}
     >
       <div
         id="preloader-bg-overlay"
-        className="absolute inset-0 z-0 w-full h-full mix-blend-difference bg-[#050505]"
+        className="absolute inset-0 z-0 w-full h-full bg-[#050505]"
+        style={{ willChange: "clip-path", transform: "translate3d(0,0,0)" }}
       />
 
       <div className="absolute inset-0 z-10 pointer-events-none">

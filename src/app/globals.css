@@ -180,3 +180,24 @@ body.menu-open .fluid-cursor-label {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Optimisation ManifestoSection - Promotion GPU pour éviter les saccades lors du défilement */
+.s0-img-wrapper,
+.s1-part-1,
+.s1-part-2,
+.s2-part-1,
+.s2-part-2,
+.s3-wrapper {
+  will-change: clip-path, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.s0-img,
+.s1-img,
+.s2-img,
+.s3-img {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

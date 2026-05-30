@@ -23,7 +23,7 @@ import imgTatoo from "../../../public/projets/tatoo/tatoo1.jpg";
 
 const menuItems = [
   // Colonne 1 : Pages principales
-  { label: "Home", href: "/", img: imgHome, col: 1 },
+  { label: "Home", href: "/#hero", img: imgHome, col: 1 },
   { label: "Services", href: "/#services", img: imgServices, col: 1 },
   { label: "À Propos", href: "/#about", img: imgAbout, col: 1 },
   {
@@ -123,15 +123,15 @@ export default function Header({
 
   // Index de la page courante (defaultIndex)
   const foundIndex = menuItems.findIndex((m) => {
-    if (m.href === "/") {
-      return (
-        pathname === "/" &&
-        (!currentHash || currentHash === "" || currentHash === "#")
-      );
-    }
     // Pour les ancres (#services etc.)
     if (m.href.startsWith("/#")) {
       const hashToMatch = m.href.substring(1); // "#services"
+      if (hashToMatch === "#hero") {
+        return (
+          pathname === "/" &&
+          (!currentHash || currentHash === "" || currentHash === "#" || currentHash === "#hero")
+        );
+      }
       return pathname === "/" && currentHash === hashToMatch;
     }
     // Pour les projets, correspondance exacte
@@ -321,15 +321,20 @@ export default function Header({
     if (pathname === "/") {
       e.preventDefault();
       if (isOpen) {
-        handleLinkClick(e, "/");
+        handleLinkClick(e, "/#hero");
       } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        window.history.pushState(null, "", "/");
-        setCurrentHash("");
+        const element = document.getElementById("hero");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        window.history.pushState(null, "", "/#hero");
+        setCurrentHash("#hero");
       }
     } else {
       if (isOpen) {
-        handleLinkClick(e, "/");
+        handleLinkClick(e, "/#hero");
       }
     }
   };
@@ -601,7 +606,7 @@ export default function Header({
           className={`flex-1 flex items-center ${isProjectPage ? "" : "header-anim opacity-0 -translate-y-10"}`}
         >
           <Link
-            href="/"
+            href="/#hero"
             onClick={handleLogoClick}
             className="group flex font-serif font-medium text-xl md:text-3xl leading-none tracking-wider"
           >

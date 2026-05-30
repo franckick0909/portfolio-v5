@@ -31,6 +31,7 @@ export default function HeroSection() {
 
   // Détection adaptive et optimisation de performance GPU
   const [loadSpline, setLoadSpline] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [fpsFallbackActive, setFpsFallbackActive] = useState(false);
 
@@ -174,7 +175,7 @@ export default function HeroSection() {
       // Delay loading Spline to keep the preloader exit buttery-smooth
       setTimeout(() => {
         setLoadSpline(true);
-      }, 400);
+      }, 2200);
 
       // Force recalculating the slot positions as the preloader exits and the layout reflows/scrollbars settle
       recalculatePortal();
@@ -297,22 +298,34 @@ export default function HeroSection() {
         {/* Spline 3D Scene - Ratio Paysage forcé sur mobile (150vh) pour reculer la caméra */}
         <div
           ref={portalImageRef}
-          className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto mix-blend-screen"
+          className={`absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto mix-blend-screen transition-opacity duration-1000 ${
+            portalReady ? "opacity-100" : "opacity-0"
+          }`}
         >
-          {loadSpline &&
-            (isDesktop && !fpsFallbackActive ? (
-              <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
-            ) : (
-              <video
-                src="/chips.mp4"
-                poster="/hero.png"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            ))}
+          <div
+            className={`w-full h-full transition-transform duration-1000 ease-out ${
+              portalReady ? "scale-100" : "scale-0"
+            }`}
+          >
+            {loadSpline &&
+              (isDesktop && !fpsFallbackActive ? (
+                <Spline 
+                  scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" 
+                  onLoad={() => setPortalReady(true)}
+                />
+              ) : (
+                <video
+                  src="/chips.mp4"
+                  poster="/hero.png"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                  onLoadedData={() => setPortalReady(true)}
+                />
+              ))}
+          </div>
         </div>
       </div>
 

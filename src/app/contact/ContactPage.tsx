@@ -192,7 +192,7 @@ export default function ContactPage() {
             </p>
 
             <Link
-              href="/"
+              href="/#hero"
               className="success-reveal group relative inline-block font-sans text-xs md:text-sm text-black pb-2 font-bold uppercase tracking-[0.2em] mt-8 cursor-pointer w-max mx-auto"
             >
               <span className="relative z-10">
