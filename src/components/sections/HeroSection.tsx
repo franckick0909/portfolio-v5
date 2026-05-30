@@ -32,6 +32,7 @@ export default function HeroSection() {
   // Détection adaptive et optimisation de performance GPU
   const [loadSpline, setLoadSpline] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [fpsFallbackActive, setFpsFallbackActive] = useState(false);
 
   const scrollTlRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -103,6 +104,47 @@ export default function HeroSection() {
       clearTimeout(timeoutId);
     };
   }, []);
+
+  // Option 2: Active performance monitoring on desktop to detect low FPS
+  useEffect(() => {
+    if (!loadSpline || !isDesktop || fpsFallbackActive) return;
+
+    let frameCount = 0;
+    let startTime = performance.now();
+    let rafId: number;
+
+    const checkFps = () => {
+      frameCount++;
+      const now = performance.now();
+      const elapsed = now - startTime;
+
+      // Monitor performance over a 2.5 second window
+      if (elapsed >= 2500) {
+        const fps = (frameCount * 1000) / elapsed;
+        console.log(`[Performance Monitor] Spline running at ${fps.toFixed(1)} FPS.`);
+        
+        // If average frame rate drops below 45 FPS, switch to high-performance video fallback
+        if (fps < 45) {
+          console.warn("[Performance Monitor] Low FPS detected. Swapping to hardware-accelerated video loop.");
+          setFpsFallbackActive(true);
+        }
+      } else {
+        rafId = requestAnimationFrame(checkFps);
+      }
+    };
+
+    // Apply a 500ms delay to ignore initial compilation/layout thrashing lag
+    const monitorTimeout = setTimeout(() => {
+      startTime = performance.now();
+      frameCount = 0;
+      rafId = requestAnimationFrame(checkFps);
+    }, 500);
+
+    return () => {
+      clearTimeout(monitorTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [loadSpline, isDesktop, fpsFallbackActive]);
 
   useEffect(() => {
     let t1: NodeJS.Timeout;
@@ -258,7 +300,7 @@ export default function HeroSection() {
           className="absolute top-1/2 left-1/2 w-[150vh] lg:w-[100vw] h-[100vh] pointer-events-auto mix-blend-screen"
         >
           {loadSpline &&
-            (isDesktop ? (
+            (isDesktop && !fpsFallbackActive ? (
               <Spline scene="https://prod.spline.design/uXQszxYeNTwjBGUo/scene.splinecode" />
             ) : (
               <video

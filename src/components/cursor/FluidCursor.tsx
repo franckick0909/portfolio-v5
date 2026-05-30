@@ -123,6 +123,8 @@ export default function FluidCursor() {
           SPLAT_FORCE={6000}
           DENSITY_DISSIPATION={4.5}
           VELOCITY_DISSIPATION={3}
+          SIM_RESOLUTION={64}
+          PRESSURE_ITERATIONS={10}
         />
       )}
 
