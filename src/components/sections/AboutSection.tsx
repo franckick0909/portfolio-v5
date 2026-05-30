@@ -68,6 +68,7 @@ export default function AboutSection() {
       textElements.forEach((el: any) => {
         // Initialiser SplitType
         const split = new SplitType(el, { types: "lines", lineClass: "split-line" });
+        el._splitType = split;
         
         // Créer un wrapper (lineParent) pour chaque ligne avec overflow hidden
         split.lines?.forEach((line) => {
@@ -143,7 +144,7 @@ export default function AboutSection() {
           <div className="about-image-wrapper w-full aspect-[16/9] md:aspect-[4/3] rounded-[24px] overflow-hidden shadow-2xl relative">
              <img 
                src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1000&auto=format&fit=crop" 
-               className="object-cover w-full h-full absolute inset-0 grayscale hover:grayscale-0 transition-all duration-700" 
+               className="object-cover w-full h-full absolute inset-0 grayscale hover:grayscale-0 transition-[filter] duration-700" 
                alt="Architecture" 
                loading="lazy"
              />
@@ -167,7 +168,7 @@ export default function AboutSection() {
           <div className="about-image-wrapper w-full aspect-square md:aspect-[3/4] rounded-[24px] overflow-hidden shadow-2xl relative">
              <img 
                src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=1000&auto=format&fit=crop" 
-               className="object-cover w-full h-full absolute inset-0 grayscale hover:grayscale-0 transition-all duration-700" 
+               className="object-cover w-full h-full absolute inset-0 grayscale hover:grayscale-0 transition-[filter] duration-700" 
                alt="Espace de travail" 
                loading="lazy"
              />
