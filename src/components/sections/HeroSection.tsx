@@ -31,12 +31,56 @@ export default function HeroSection() {
 
   // Détection adaptive et optimisation de performance GPU
   const [loadSpline, setLoadSpline] = useState(false);
-  const [resizeKey, setResizeKey] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // Track preloader completion state for robust UI reveals
-  const [preloaderFinished, setPreloaderFinished] = useState(false);
-  const olhaTagsAnimated = useRef(false);
+  const scrollTlRef = useRef<gsap.core.Timeline | null>(null);
+
+  // Recalculates slot position and updates portalRef and portalImageRef directly in the DOM
+  const recalculatePortal = () => {
+    if (typeof window === "undefined") return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const canvasW = vw < 1024 ? vh * 1.5 : vw;
+    const canvasH = vh;
+
+    const activeSlot =
+      vw < 1024 ? slotMobileRef.current : slotDesktopRef.current;
+
+    if (activeSlot && portalRef.current && portalImageRef.current) {
+      const rect = activeSlot.getBoundingClientRect();
+      const insetTop = rect.top;
+      const insetRight = vw - rect.right;
+      const insetBottom = vh - rect.bottom;
+      const insetLeft = rect.left;
+
+      const startClip = `inset(${insetTop}px ${insetRight}px ${insetBottom}px ${insetLeft}px round 4px)`;
+
+      const slotCenterX = rect.left + rect.width / 2;
+      const slotCenterY = rect.top + rect.height / 2;
+
+      const diffX = slotCenterX - vw / 2;
+      const diffY = slotCenterY - vh / 2;
+
+      const scaleX = rect.width / canvasW;
+      const scaleY = rect.height / canvasH;
+      const multiplier = vw < 1024 ? 1.05 : 1.2;
+      const initialScale = Math.max(scaleX, scaleY) * multiplier;
+
+      gsap.set(portalRef.current, { clipPath: startClip });
+      gsap.set(portalImageRef.current, {
+        xPercent: -50,
+        yPercent: -50,
+        x: diffX,
+        y: diffY,
+        scale: initialScale,
+      });
+
+      if (scrollTlRef.current) {
+        scrollTlRef.current.invalidate();
+      }
+      ScrollTrigger.refresh();
+    }
+  };
 
   // Debounced resize handler to recreate the ScrollTrigger with perfect coordinates
   useEffect(() => {
@@ -50,7 +94,7 @@ export default function HeroSection() {
       checkDesktop();
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        setResizeKey((prev) => prev + 1);
+        recalculatePortal();
       }, 150);
     };
     window.addEventListener("resize", handleResize, { passive: true });
@@ -61,11 +105,29 @@ export default function HeroSection() {
   }, []);
 
   useEffect(() => {
+    let t1: NodeJS.Timeout;
+    let t2: NodeJS.Timeout;
+    let t3: NodeJS.Timeout;
+    let t4: NodeJS.Timeout;
+
     const handlePreloaderComplete = () => {
       if (typeof window !== "undefined") {
         (window as any).__preloaderComplete = true;
       }
-      setPreloaderFinished(true);
+
+      // Animate tags
+      gsap.fromTo(
+        ".olha-tag",
+        { opacity: 0, y: 12 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.4,
+          stagger: 0.12,
+          ease: "power3.out",
+          delay: 0.6,
+        },
+      );
 
       // Delay loading Spline to keep the preloader exit buttery-smooth
       setTimeout(() => {
@@ -73,19 +135,10 @@ export default function HeroSection() {
       }, 400);
 
       // Force recalculating the slot positions as the preloader exits and the layout reflows/scrollbars settle
-      setResizeKey((prev) => prev + 1);
-
-      setTimeout(() => {
-        setResizeKey((prev) => prev + 1);
-      }, 150);
-
-      setTimeout(() => {
-        setResizeKey((prev) => prev + 1);
-      }, 500);
-
-      setTimeout(() => {
-        setResizeKey((prev) => prev + 1);
-      }, 1000);
+      recalculatePortal();
+      t1 = setTimeout(recalculatePortal, 150);
+      t2 = setTimeout(recalculatePortal, 500);
+      t3 = setTimeout(recalculatePortal, 1000);
     };
 
     window.addEventListener("preloaderComplete", handlePreloaderComplete);
@@ -98,85 +151,22 @@ export default function HeroSection() {
       if (typeof window !== "undefined") {
         (window as any).__preloaderComplete = true;
       }
-      setPreloaderFinished(true);
       setLoadSpline(true);
-      setTimeout(() => {
-        setResizeKey((prev) => prev + 1);
-      }, 100);
+      t4 = setTimeout(recalculatePortal, 100);
     }
 
     return () => {
       window.removeEventListener("preloaderComplete", handlePreloaderComplete);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
     };
   }, []);
 
   useGSAP(
     () => {
       gsap.registerPlugin(ScrollTrigger);
-
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-
-      let diffX = 0;
-      let diffY = 0;
-      let startClip = "";
-
-      let initialScale = 0.25;
-
-      // Le conteneur Spline est forcé à 200vw sur mobile pour garder un ratio paysage
-      // Le secret pour empêcher le Spline d'être trop gros sur mobile :
-      // On force le canvas à avoir un ratio PAYSAGE (w = 1.5 * h), même sur un écran portrait !
-      // Ainsi, la caméra Spline ne zoome jamais.
-      const canvasW = vw < 1024 ? vh * 1.5 : vw;
-      const canvasH = vh;
-
-      const activeSlot =
-        vw < 1024 ? slotMobileRef.current : slotDesktopRef.current;
-
-      if (activeSlot) {
-        // Obtenir la position EXACTE du trou par rapport au viewport
-        const rect = activeSlot.getBoundingClientRect();
-
-        // Le portalRef est "fixed inset-0", donc son repère est le viewport.
-        const insetTop = rect.top;
-        const insetRight = vw - rect.right;
-        const insetBottom = vh - rect.bottom;
-        const insetLeft = rect.left;
-
-        startClip = `inset(${insetTop}px ${insetRight}px ${insetBottom}px ${insetLeft}px round 4px)`;
-
-        // Calcul du centre du slot par rapport au viewport
-        const slotCenterX = rect.left + rect.width / 2;
-        const slotCenterY = rect.top + rect.height / 2;
-
-        // Décalage pour centrer la scène Spline
-        diffX = slotCenterX - vw / 2;
-        diffY = slotCenterY - vh / 2;
-
-        // Calcul dynamique du scale initial par rapport à la taille FORCÉE du canvas
-        const scaleX = rect.width / canvasW;
-        const scaleY = rect.height / canvasH;
-
-        // Multiplicateur ajusté pour laisser une belle marge noire autour du Chips
-        const multiplier = vw < 1024 ? 1.05 : 1.2;
-        initialScale = Math.max(scaleX, scaleY) * multiplier;
-      } else {
-        // Fallback
-        const boxH = vw < 768 ? 60 : 100;
-        const boxW = vw < 768 ? 100 : 180;
-        startClip = `inset(${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px ${vh / 2 - boxH / 2}px ${vw / 2 - boxW / 2}px round 4px)`;
-        initialScale = (boxW / canvasW) * 1.5;
-      }
-
-      // Initialiser le clip-path et la position/scale du Spline avec xPercent/yPercent pour centrage absolu
-      gsap.set(portalRef.current, { clipPath: startClip });
-      gsap.set(portalImageRef.current, {
-        xPercent: -50,
-        yPercent: -50,
-        x: diffX,
-        y: diffY,
-        scale: initialScale,
-      });
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
@@ -195,6 +185,8 @@ export default function HeroSection() {
           },
         },
       });
+
+      scrollTlRef.current = scrollTl;
 
       // 1. Expansion du portal pour remplir l'écran (inset 0px)
       scrollTl.to(
@@ -245,33 +237,10 @@ export default function HeroSection() {
         0,
       );
 
-      // Robust entry animation or persistence check for .olha-tag elements
-      const hasPreloaderComplete =
-        preloaderFinished ||
-        (typeof window !== "undefined" && !!(window as any).__preloaderComplete);
-
-      if (hasPreloaderComplete) {
-        if (!olhaTagsAnimated.current) {
-          olhaTagsAnimated.current = true;
-          gsap.fromTo(
-            ".olha-tag",
-            { opacity: 0, y: 12 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1.4,
-              stagger: 0.12,
-              ease: "power3.out",
-              delay: 0.6,
-            },
-          );
-        } else {
-          // If already animated, guarantee they stay visible even after a parent re-render/remount
-          gsap.set(".olha-tag", { opacity: 1, y: 0 });
-        }
-      }
+      // Initial calculation
+      recalculatePortal();
     },
-    { dependencies: [resizeKey, preloaderFinished], scope: container },
+    { dependencies: [], scope: container },
   );
 
   return (
