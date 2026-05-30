@@ -15,7 +15,7 @@ import imgServices from "../../../public/header/services.jpg";
 import imgAbout from "../../../public/header/about.jpg";
 import imgContact from "../../../public/header/contact.jpg";
 
-import imgHarmonie from "../../../public/header/projets.jpg";
+import imgHarmonie from "../../../public/projets/harmonie/harmonie1.jpg";
 import imgImo from "../../../public/projets/imo/imo1.jpg";
 import imgMovie from "../../../public/projets/movie/movie1.jpg";
 import imgSophie from "../../../public/projets/sophie/sophie1.png";

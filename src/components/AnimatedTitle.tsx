@@ -166,6 +166,9 @@ export default function AnimatedTitle({
       gsap.set(chars, { yPercent: yStart, opacity: 0, rotateX: -30 });
 
       const playAnimation = () => {
+        if (typeof window !== "undefined") {
+          (window as any).__preloaderComplete = true;
+        }
         gsap.to(chars, {
           yPercent: 0,
           opacity: 1,
@@ -178,7 +181,16 @@ export default function AnimatedTitle({
         });
       };
 
-      window.addEventListener("preloaderComplete", playAnimation);
+      const isPreloaderGone =
+        typeof window !== "undefined" &&
+        (!!(window as any).__preloaderComplete ||
+          !document.querySelector(".preloader-canvas"));
+
+      if (isPreloaderGone) {
+        playAnimation();
+      } else {
+        window.addEventListener("preloaderComplete", playAnimation);
+      }
       return () => window.removeEventListener("preloaderComplete", playAnimation);
     } else {
       gsap.fromTo(

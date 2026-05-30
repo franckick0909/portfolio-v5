@@ -34,6 +34,10 @@ export default function HeroSection() {
   const [resizeKey, setResizeKey] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
+  // Track preloader completion state for robust UI reveals
+  const [preloaderFinished, setPreloaderFinished] = useState(false);
+  const olhaTagsAnimated = useRef(false);
+
   // Debounced resize handler to recreate the ScrollTrigger with perfect coordinates
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -58,18 +62,10 @@ export default function HeroSection() {
 
   useEffect(() => {
     const handlePreloaderComplete = () => {
-      gsap.fromTo(
-        ".olha-tag",
-        { opacity: 0, y: 12 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.4,
-          stagger: 0.12,
-          ease: "power3.out",
-          delay: 0.6,
-        },
-      );
+      if (typeof window !== "undefined") {
+        (window as any).__preloaderComplete = true;
+      }
+      setPreloaderFinished(true);
 
       // Delay loading Spline to keep the preloader exit buttery-smooth
       setTimeout(() => {
@@ -99,6 +95,10 @@ export default function HeroSection() {
       document.readyState === "complete" &&
       !document.querySelector(".preloader-canvas");
     if (isHotReload) {
+      if (typeof window !== "undefined") {
+        (window as any).__preloaderComplete = true;
+      }
+      setPreloaderFinished(true);
       setLoadSpline(true);
       setTimeout(() => {
         setResizeKey((prev) => prev + 1);
@@ -244,8 +244,34 @@ export default function HeroSection() {
         { yPercent: -30, opacity: 0, ease: "none" },
         0,
       );
+
+      // Robust entry animation or persistence check for .olha-tag elements
+      const hasPreloaderComplete =
+        preloaderFinished ||
+        (typeof window !== "undefined" && !!(window as any).__preloaderComplete);
+
+      if (hasPreloaderComplete) {
+        if (!olhaTagsAnimated.current) {
+          olhaTagsAnimated.current = true;
+          gsap.fromTo(
+            ".olha-tag",
+            { opacity: 0, y: 12 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1.4,
+              stagger: 0.12,
+              ease: "power3.out",
+              delay: 0.6,
+            },
+          );
+        } else {
+          // If already animated, guarantee they stay visible even after a parent re-render/remount
+          gsap.set(".olha-tag", { opacity: 1, y: 0 });
+        }
+      }
     },
-    { dependencies: [resizeKey], scope: container },
+    { dependencies: [resizeKey, preloaderFinished], scope: container },
   );
 
   return (
